@@ -1,0 +1,25 @@
+{
+  "name": "team6-backend",
+  "version": "1.0.0",
+  "description": "Team6 Backend",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "mkdir -p dist && cp src/index.js dist/index.js",
+    "dev": "node scripts/dev.js",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kainos-birmingham-academy-2026/team6-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kainos-birmingham-academy-2026/team6-backend/issues"
+  },
+  "homepage": "https://github.com/kainos-birmingham-academy-2026/team6-backend#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
