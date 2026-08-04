@@ -4,6 +4,7 @@
   "description": "Team6 Backend",
   "main": "index.js",
   "scripts": {
+    "lint": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
