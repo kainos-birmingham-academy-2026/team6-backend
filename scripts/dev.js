@@ -8,7 +8,7 @@ let restartTimeout;
 
 function startServer() {
   child = spawn(process.execPath, [sourceFile], {
-    stdio: "inherit"
+    stdio: "inherit",
   });
 
   child.on("exit", (code, signal) => {

@@ -6,7 +6,7 @@ const port = Number(process.env.PORT) || 3000;
 app.get("/health", (_req, res) => {
   res.json({
     status: "UP",
-    time: new Date().toISOString()
+    time: new Date().toISOString(),
   });
 });
 
