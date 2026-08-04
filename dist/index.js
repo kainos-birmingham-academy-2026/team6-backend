@@ -11,5 +11,5 @@ app.get("/health", (_req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`API server running on port ${port}`);
+  console.log(`API server run ning on port ${port}`);
 });
