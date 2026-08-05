@@ -1,13 +1,7 @@
-import express from "express";
-
-const app = express();
-app.use(express.json());
-
-app.get("/health", (_req, res) => {
-  res.json({ status: "UP", timestamp: new Date().toISOString() });
-});
+import { createApp } from "./app";
 
 const PORT = 3000;
+const app = createApp();
 
 // Start server
 app.listen(PORT, () => {
