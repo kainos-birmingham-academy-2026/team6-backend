@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // compile to modern JS (async/await, etc.)
+    "module": "Node16", // use CommonJS modules for direct Node.js execution
+    "moduleResolution": "node16", // resolve modules like Node.js
+    "esModuleInterop": true, // allows default imports from CommonJS packages
+    "strict": true, // enables all strict type checks
+    "outDir": "./dist", // compiled JS output folder
+    "rootDir": "./src" // where your TypeScript source lives
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+  // only compile files under src/
+}
