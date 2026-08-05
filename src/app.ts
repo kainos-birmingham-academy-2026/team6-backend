@@ -6,7 +6,7 @@ export function createApp() {
   app.use(express.json());
 
   app.get("/health", (_req, res) => {
-    res.json({ status: "UP", timestamp: new Date().toISOString() });
+    res.json({ status: "UP", time: new Date().toISOString() });
   });
 
   return app;

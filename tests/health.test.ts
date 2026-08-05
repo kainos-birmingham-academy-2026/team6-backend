@@ -9,9 +9,9 @@ describe("health endpoint", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.status).toBe("UP");
-    expect(typeof response.body.timestamp).toBe("string");
-    expect(new Date(response.body.timestamp).toISOString()).toBe(
-      response.body.timestamp,
+    expect(typeof response.body.time).toBe("string");
+    expect(new Date(response.body.time).toISOString()).toBe(
+      response.body.time,
     );
   });
 });

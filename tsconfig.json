@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022", // compile to modern JS (async/await, etc.)
-    "module": "ESNext", // use ES module syntax (import/export)
-    "moduleResolution": "bundler", // resolve modules like a bundler (Vite/tsx)
+    "module": "Node16", // use CommonJS modules for direct Node.js execution
+    "moduleResolution": "node16", // resolve modules like Node.js
     "esModuleInterop": true, // allows default imports from CommonJS packages
     "strict": true, // enables all strict type checks
     "outDir": "./dist", // compiled JS output folder
