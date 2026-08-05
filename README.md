@@ -49,7 +49,7 @@ Response example:
 ```json
 {
   "status": "UP",
-  "timestamp": "2026-08-05T09:38:09.000Z"
+  "time": "2026-08-05T09:38:09.000Z"
 }
 ```
 
