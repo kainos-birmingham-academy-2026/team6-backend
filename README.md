@@ -6,6 +6,7 @@ Backend service for Team 6 built with Express, TypeScript, and Vitest.
 
 - Node.js 20 or later
 - npm 10 or later
+- Docker
 
 ## Setup
 
@@ -15,17 +16,60 @@ Backend service for Team 6 built with Express, TypeScript, and Vitest.
 npm install
 ```
 
-2. Start the backend in development mode:
+2. Start PostgreSQL in Docker on port `5433`:
+
+```bash
+docker run --name jobs-db -e POSTGRES_PASSWORD=password -e POSTGRES_DB=job-roles -p 5433:5432 -d postgres
+```
+
+3. Install Prisma packages if you do not already have them:
+
+```bash
+npm install prisma@6 --save-dev
+npm install @prisma/client@6
+```
+
+4. Create a `.env` file in the project root and add:
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5433/job-roles"
+```
+
+Make sure your database connection uses port `5433`.
+
+5. Initialize Prisma for PostgreSQL:
+
+```bash
+npx prisma init --datasource-provider postgresql
+```
+
+This will show an error saying you already have a `prisma` folder. That is expected for this repository because the `prisma` folder is already committed.
+
+6. Run the initial migration:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+7. Generate the Prisma client:
+
+```bash
+npx prisma generate
+```
+
+8. Start the backend in development mode:
 
 ```bash
 npm run dev
 ```
 
-3. Open the health endpoint in your browser or with curl:
+9. Open the health endpoint in your browser or with curl:
 
 ```bash
 curl http://localhost:3000/health
 ```
+
+If the Prisma commands do not work after setup, restart your laptop and try again.
 
 ## Scripts
 
