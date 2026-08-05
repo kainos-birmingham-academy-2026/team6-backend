@@ -42,7 +42,7 @@ describe("JobRoleService", () => {
   });
 
   describe("findAllJobRoles", () => {
-    it("should return all job roles", async () => {
+    it("should return only open job roles", async () => {
       vi.mocked(prisma.jobRole.findMany).mockResolvedValue(
         mockJobRoles as unknown as Awaited<
           ReturnType<typeof prisma.jobRole.findMany>
@@ -51,7 +51,9 @@ describe("JobRoleService", () => {
 
       const result = await service.findAllJobRoles();
 
-      expect(prisma.jobRole.findMany).toHaveBeenCalledOnce();
+      expect(prisma.jobRole.findMany).toHaveBeenCalledWith({
+        where: { status: "open" },
+      });
       expect(result).toEqual(mockJobRoles);
     });
 
