@@ -57,16 +57,45 @@ npx prisma migrate dev --name init
 npx prisma generate
 ```
 
-8. Start the backend in development mode:
+8. Seed the database with dummy data:
+
+```bash
+docker exec -it jobs-db psql -U postgres -d job-roles -c "
+INSERT INTO \"Capability\" (\"capabilityName\") VALUES
+  ('Engineering'),
+  ('Business Analysis'),
+  ('Delivery Management');
+
+INSERT INTO \"Band\" (\"bandName\") VALUES
+  ('Trainee'),
+  ('Associate'),
+  ('Consultant'),
+  ('Senior Consultant');
+
+INSERT INTO \"job-roles\" (\"roleName\", \"location\", \"capabilityId\", \"bandId\", \"closingDate\", \"status\") VALUES
+  ('Software Engineer', 'Belfast', 1, 2, '2026-12-31', 'open'),
+  ('Business Analyst', 'Birmingham', 2, 3, '2026-11-30', 'open'),
+  ('Delivery Manager', 'London', 3, 4, '2026-10-15', 'open'),
+  ('Junior Developer', 'Remote', 1, 1, '2026-09-01', 'open');
+"
+```
+
+9. Start the backend in development mode:
 
 ```bash
 npm run dev
 ```
 
-9. Open the health endpoint in your browser or with curl:
+10. Open the health endpoint in your browser or with curl:
 
 ```bash
 curl http://localhost:3000/health
+```
+
+11. Fetch all job roles:
+
+```bash
+curl http://localhost:3000/job-roles
 ```
 
 If the Prisma commands do not work after setup, restart your laptop and try again.
@@ -82,9 +111,9 @@ If the Prisma commands do not work after setup, restart your laptop and try agai
 - `npm run lint` - check code style with Biome
 - `npm run lint:fix` - automatically fix lint issues with Biome
 
-## Test Endpoint
+## API Endpoints
 
-The service exposes a simple health route:
+### Health
 
 - `GET /health`
 
@@ -97,8 +126,28 @@ Response example:
 }
 ```
 
+### Job Roles
+
+- `GET /job-roles` — returns all job roles from the database
+
+Response example:
+
+```json
+[
+  {
+    "jobRoleId": 1,
+    "roleName": "Software Engineer",
+    "location": "Belfast",
+    "capabilityId": 1,
+    "bandId": 2,
+    "closingDate": "2026-12-31T00:00:00.000Z",
+    "status": "open"
+  }
+]
+```
+
 ## Notes For Reviewers
 
 - The app is split into a testable factory in `src/app.ts` and a server entrypoint in `src/index.ts`.
-- Unit tests live in `tests/health.test.ts`.
+- Unit tests live in `tests/` and cover the service and controller layers with mocked dependencies.
 - Coverage output is ignored in `.gitignore`.
