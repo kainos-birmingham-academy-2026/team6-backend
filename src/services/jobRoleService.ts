@@ -1,5 +1,5 @@
+import { type JobRoleDao, JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type { JobRole } from "../models/jobRole";
-import { JobRoleDaoImpl, type JobRoleDao } from "../dao/jobRoleDao";
 
 export class JobRoleService {
   constructor(private readonly jobRoleDao: JobRoleDao = new JobRoleDaoImpl()) {}
@@ -8,4 +8,3 @@ export class JobRoleService {
     return this.jobRoleDao.findAllJobRoles();
   }
 }
-
