@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { JobRole } from "../src/models/jobRole";
+import type { JobRoleResponse } from "../src/models/JobRoleResponse";
 import { JobRoleService } from "../src/services/jobRoleService";
 
 vi.mock("../src/prismaClient", () => ({
@@ -12,7 +12,7 @@ vi.mock("../src/prismaClient", () => ({
 
 import prisma from "../src/prismaClient";
 
-const mockJobRoles: JobRole[] = [
+const mockJobRolesFromDb = [
   {
     jobRoleId: 1,
     roleName: "Software Engineer",
@@ -21,6 +21,8 @@ const mockJobRoles: JobRole[] = [
     bandId: 2,
     closingDate: new Date("2026-12-31"),
     status: "open",
+    capability: { capabilityName: "Engineering" },
+    band: { bandName: "Associate" },
   },
   {
     jobRoleId: 2,
@@ -30,6 +32,25 @@ const mockJobRoles: JobRole[] = [
     bandId: 3,
     closingDate: new Date("2026-11-30"),
     status: "open",
+    capability: { capabilityName: "Business Analysis" },
+    band: { bandName: "Consultant" },
+  },
+];
+
+const expectedResponse: JobRoleResponse[] = [
+  {
+    roleName: "Software Engineer",
+    location: "Belfast",
+    capabilityName: "Engineering",
+    bandName: "Associate",
+    closingDate: new Date("2026-12-31"),
+  },
+  {
+    roleName: "Business Analyst",
+    location: "Birmingham",
+    capabilityName: "Business Analysis",
+    bandName: "Consultant",
+    closingDate: new Date("2026-11-30"),
   },
 ];
 
@@ -42,9 +63,9 @@ describe("JobRoleService", () => {
   });
 
   describe("findAllJobRoles", () => {
-    it("should return only open job roles", async () => {
+    it("should return open job roles as JobRoleResponse objects", async () => {
       vi.mocked(prisma.jobRole.findMany).mockResolvedValue(
-        mockJobRoles as unknown as Awaited<
+        mockJobRolesFromDb as unknown as Awaited<
           ReturnType<typeof prisma.jobRole.findMany>
         >,
       );
@@ -53,8 +74,20 @@ describe("JobRoleService", () => {
 
       expect(prisma.jobRole.findMany).toHaveBeenCalledWith({
         where: { status: "open" },
+        include: {
+          capability: {
+            select: {
+              capabilityName: true,
+            },
+          },
+          band: {
+            select: {
+              bandName: true,
+            },
+          },
+        },
       });
-      expect(result).toEqual(mockJobRoles);
+      expect(result).toEqual(expectedResponse);
     });
 
     it("should return an empty array when there are no job roles", async () => {
