@@ -35,7 +35,7 @@ npm install @prisma/client@6
 DATABASE_URL="postgresql://postgres:password@localhost:5433/job-roles"
 ```
 
-Make sure your database connection uses port `5433`.
+Make sure your database connection uses port `5433`
 
 5. Initialize Prisma for PostgreSQL:
 
