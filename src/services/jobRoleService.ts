@@ -1,7 +1,11 @@
-import prisma from "../prismaClient";
+import type { JobRole } from "../models/jobRole";
+import { JobRoleDaoImpl, type JobRoleDao } from "../dao/jobRoleDao";
 
 export class JobRoleService {
-  async findAllJobRoles() {
-    return prisma.jobRole.findMany({ where: { status: "open" } });
+  constructor(private readonly jobRoleDao: JobRoleDao = new JobRoleDaoImpl()) {}
+
+  async findAllJobRoles(): Promise<JobRole[]> {
+    return this.jobRoleDao.findAllJobRoles();
   }
 }
+
