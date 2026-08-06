@@ -1,7 +1,7 @@
-import prisma from "../prismaClient";
+// import { type JobRoleDao, JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type { JobRoleResponse } from "../models/JobRoleResponse";
-import { type JobRoleDao, JobRoleDaoImpl } from "../dao/jobRoleDao";
-import type { JobRole } from "../models/jobRole";
+// import type { JobRole } from "../models/jobRole";
+import prisma from "../prismaClient";
 
 export class JobRoleService {
   async findAllJobRoles(): Promise<JobRoleResponse[]> {
