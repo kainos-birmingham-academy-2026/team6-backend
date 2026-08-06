@@ -1,6 +1,5 @@
-
+import { type JobRoleDao, JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type { JobRoleResponse } from "../models/JobRoleResponse";
-import { JobRoleDaoImpl, type JobRoleDao } from "../dao/jobRoleDao";
 
 export class JobRoleService {
   constructor(private readonly jobRoleDao: JobRoleDao = new JobRoleDaoImpl()) {}
