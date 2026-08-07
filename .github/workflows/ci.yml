@@ -15,5 +15,8 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
+      - run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://user:password@localhost:5433/placeholder"
       - run: npm run lint
       - run: npm test
