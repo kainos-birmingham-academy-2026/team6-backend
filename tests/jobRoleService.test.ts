@@ -20,7 +20,7 @@ const mockJobRolesFromDb = [
     capabilityId: 1,
     bandId: 2,
     closingDate: new Date("2026-12-31"),
-    status: "open",
+    statusId: 1,
     capability: { capabilityName: "Engineering" },
     band: { bandName: "Associate" },
   },
@@ -31,7 +31,7 @@ const mockJobRolesFromDb = [
     capabilityId: 2,
     bandId: 3,
     closingDate: new Date("2026-11-30"),
-    status: "open",
+    statusId: 1,
     capability: { capabilityName: "Business Analysis" },
     band: { bandName: "Consultant" },
   },
@@ -73,7 +73,13 @@ describe("JobRoleService", () => {
       const result = await service.findAllJobRoles();
 
       expect(prisma.jobRole.findMany).toHaveBeenCalledWith({
-        where: { status: "open" },
+        where: {
+          status: {
+            is: {
+              statusName: "open",
+            },
+          },
+        },
         include: {
           capability: {
             select: {

@@ -5,5 +5,9 @@ export interface JobRole {
   capabilityId: number;
   bandId: number;
   closingDate: Date;
-  status: string;
+  description?: string;
+  resposibilities?: string;
+  sharepointUrl?: string;
+  statusId?: number;
+  numberOfOpenPositions?: number;
 }

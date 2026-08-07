@@ -17,7 +17,13 @@ export interface JobRoleDao {
 export class JobRoleDaoImpl implements JobRoleDao {
   async findAllJobRoles(): Promise<JobRoleWithRelations[]> {
     return prisma.jobRole.findMany({
-      where: { status: "open" },
+      where: {
+        status: {
+          is: {
+            statusName: "open",
+          },
+        },
+      },
       include: {
         capability: {
           select: {
