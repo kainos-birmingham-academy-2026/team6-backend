@@ -26,6 +26,7 @@ export class JobRoleService {
     }
 
     return {
+      jobRoleId: jobRole.jobRoleId,
       roleName: jobRole.roleName,
       description: jobRole.description,
       responsibilities: jobRole.responsibilities,

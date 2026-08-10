@@ -1,4 +1,5 @@
 export type JobRoleDetailedResponse = {
+  jobRoleId: number;
   roleName: string;
   description?: string;
   responsibilities?: string;
