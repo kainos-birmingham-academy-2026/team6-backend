@@ -6,7 +6,7 @@ export interface JobRole {
   bandId: number;
   closingDate: Date;
   description?: string;
-  resposibilities?: string;
+  responsibilities?: string;
   sharepointUrl?: string;
   statusId?: number;
   numberOfOpenPositions?: number;

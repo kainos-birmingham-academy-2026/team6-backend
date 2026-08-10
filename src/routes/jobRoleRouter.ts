@@ -7,4 +7,8 @@ const jobRoleRouter = Router();
 const controller = new JobRoleController(new JobRoleService());
 
 jobRoleRouter.get("/", controller.getAllJobRoles.bind(controller));
+
+jobRoleRouter.get("/:id", controller.getJobRoleInfoById.bind(controller));
+
+
 export default jobRoleRouter;

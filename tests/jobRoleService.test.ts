@@ -23,6 +23,7 @@ const mockJobRolesFromDb = [
     statusId: 1,
     capability: { capabilityName: "Engineering" },
     band: { bandName: "Associate" },
+    status: { statusName: "open" },
   },
   {
     jobRoleId: 2,
@@ -34,6 +35,7 @@ const mockJobRolesFromDb = [
     statusId: 1,
     capability: { capabilityName: "Business Analysis" },
     band: { bandName: "Consultant" },
+    status: { statusName: "open" },
   },
 ];
 
@@ -43,6 +45,7 @@ const expectedResponse: JobRoleResponse[] = [
     location: "Belfast",
     capabilityName: "Engineering",
     bandName: "Associate",
+    statusName: "open",
     closingDate: new Date("2026-12-31"),
   },
   {
@@ -50,6 +53,7 @@ const expectedResponse: JobRoleResponse[] = [
     location: "Birmingham",
     capabilityName: "Business Analysis",
     bandName: "Consultant",
+    statusName: "open",
     closingDate: new Date("2026-11-30"),
   },
 ];
@@ -89,6 +93,11 @@ describe("JobRoleService", () => {
           band: {
             select: {
               bandName: true,
+            },
+          },
+          status: {
+            select: {
+              statusName: true,
             },
           },
         },
