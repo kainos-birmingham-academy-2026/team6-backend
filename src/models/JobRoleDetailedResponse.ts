@@ -1,13 +1,13 @@
-export interface JobRole {
+export type JobRoleDetailedResponse = {
   jobRoleId: number;
   roleName: string;
-  location: string;
-  capabilityId: number;
-  bandId: number;
-  closingDate: Date;
   description?: string;
   responsibilities?: string;
   sharepointUrl?: string;
-  statusId?: number;
+  location: string;
+  capabilityName: string;
+  bandName: string;
+  closingDate: Date;
+  statusName: string;
   numberOfOpenPositions?: number;
-}
+};

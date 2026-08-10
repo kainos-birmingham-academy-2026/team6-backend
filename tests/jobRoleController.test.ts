@@ -12,7 +12,7 @@ const mockJobRoles: JobRole[] = [
     capabilityId: 1,
     bandId: 2,
     closingDate: new Date("2026-12-31"),
-    status: "open",
+    statusId: 1,
   },
   {
     jobRoleId: 2,
@@ -21,7 +21,7 @@ const mockJobRoles: JobRole[] = [
     capabilityId: 2,
     bandId: 3,
     closingDate: new Date("2026-11-30"),
-    status: "open",
+    statusId: 1,
   },
 ];
 

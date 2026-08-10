@@ -14,15 +14,22 @@ datasource db {
 }
 
 model JobRole {
-  jobRoleId    Int        @id @default(autoincrement())
+  jobRoleId    Int      @id @default(autoincrement())
   roleName     String
   location     String
   capabilityId Int
   bandId       Int
   closingDate  DateTime
-  status       String
-  capability   Capability @relation(fields: [capabilityId], references: [capabilityId])
-  band         Band       @relation(fields: [bandId], references: [bandId])
+
+  description           String?
+  resposibilities       String?
+  sharepointUrl         String?
+  statusId              Int?
+  numberOfOpenPositions Int?
+
+  capability Capability @relation(fields: [capabilityId], references: [capabilityId])
+  band       Band       @relation(fields: [bandId], references: [bandId])
+  status     Status?    @relation(fields: [statusId], references: [statusId])
 
   @@map("job-roles")
 }
@@ -37,4 +44,10 @@ model Band {
   bandId   Int       @id @default(autoincrement())
   bandName String
   jobRoles JobRole[]
+}
+
+model Status {
+  statusId   Int       @id @default(autoincrement())
+  statusName String
+  jobRoles   JobRole[]
 }

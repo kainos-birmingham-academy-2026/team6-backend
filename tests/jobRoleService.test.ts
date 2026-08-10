@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { JobRoleResponse } from "../src/models/JobRoleResponse";
+import { BandName, CapabilityName } from "../src/models/jobRoleEnums";
+import { Status } from "../src/models/status";
 import { JobRoleService } from "../src/services/jobRoleService";
 
 vi.mock("../src/prismaClient", () => ({
@@ -20,9 +22,10 @@ const mockJobRolesFromDb = [
     capabilityId: 1,
     bandId: 2,
     closingDate: new Date("2026-12-31"),
-    status: "open",
-    capability: { capabilityName: "Engineering" },
-    band: { bandName: "Associate" },
+    statusId: 1,
+    capability: { capabilityName: CapabilityName.Engineering },
+    band: { bandName: BandName.Associate },
+    status: { statusName: Status.Open },
   },
   {
     jobRoleId: 2,
@@ -31,9 +34,10 @@ const mockJobRolesFromDb = [
     capabilityId: 2,
     bandId: 3,
     closingDate: new Date("2026-11-30"),
-    status: "open",
-    capability: { capabilityName: "Business Analysis" },
-    band: { bandName: "Consultant" },
+    statusId: 1,
+    capability: { capabilityName: CapabilityName.BusinessAnalysis },
+    band: { bandName: BandName.Consultant },
+    status: { statusName: Status.Open },
   },
 ];
 
@@ -41,15 +45,17 @@ const expectedResponse: JobRoleResponse[] = [
   {
     roleName: "Software Engineer",
     location: "Belfast",
-    capabilityName: "Engineering",
-    bandName: "Associate",
+    capabilityName: CapabilityName.Engineering,
+    bandName: BandName.Associate,
+    statusName: Status.Open,
     closingDate: new Date("2026-12-31"),
   },
   {
     roleName: "Business Analyst",
     location: "Birmingham",
-    capabilityName: "Business Analysis",
-    bandName: "Consultant",
+    capabilityName: CapabilityName.BusinessAnalysis,
+    bandName: BandName.Consultant,
+    statusName: Status.Open,
     closingDate: new Date("2026-11-30"),
   },
 ];
@@ -73,7 +79,13 @@ describe("JobRoleService", () => {
       const result = await service.findAllJobRoles();
 
       expect(prisma.jobRole.findMany).toHaveBeenCalledWith({
-        where: { status: "open" },
+        where: {
+          status: {
+            is: {
+              statusName: Status.Open,
+            },
+          },
+        },
         include: {
           capability: {
             select: {
@@ -83,6 +95,11 @@ describe("JobRoleService", () => {
           band: {
             select: {
               bandName: true,
+            },
+          },
+          status: {
+            select: {
+              statusName: true,
             },
           },
         },
