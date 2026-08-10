@@ -1,16 +1,24 @@
 import type { JobRole } from "../models/jobRole";
+import { Status } from "../models/status";
 import prisma from "../prismaClient";
 
+export type Capability = {
+  capabilityName: string;
+};
+
+export type Band = {
+  bandName: string;
+};
+
+export type JobStatus = {
+  statusName: string;
+};
+
+
 export interface JobRoleWithNames extends JobRole {
-  capability: {
-    capabilityName: string;
-  };
-  band: {
-    bandName: string;
-  };
-  status: {
-    statusName: string;
-  } | null;
+  capability: Capability;
+  band: Band;
+  status: JobStatus | null;
 }
 
 export interface JobRoleDao {
@@ -24,7 +32,7 @@ export class JobRoleDaoImpl implements JobRoleDao {
       where: {
         status: {
           is: {
-            statusName: "open",
+            statusName: Status.Open,
           },
         },
       },

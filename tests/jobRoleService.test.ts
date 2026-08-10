@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BandName, CapabilityName } from "../src/models/jobRoleEnums";
 import type { JobRoleResponse } from "../src/models/JobRoleResponse";
+import { Status } from "../src/models/status";
 import { JobRoleService } from "../src/services/jobRoleService";
 
 vi.mock("../src/prismaClient", () => ({
@@ -21,9 +23,9 @@ const mockJobRolesFromDb = [
     bandId: 2,
     closingDate: new Date("2026-12-31"),
     statusId: 1,
-    capability: { capabilityName: "Engineering" },
-    band: { bandName: "Associate" },
-    status: { statusName: "open" },
+    capability: { capabilityName: CapabilityName.Engineering },
+    band: { bandName: BandName.Associate },
+    status: { statusName: Status.Open },
   },
   {
     jobRoleId: 2,
@@ -33,9 +35,9 @@ const mockJobRolesFromDb = [
     bandId: 3,
     closingDate: new Date("2026-11-30"),
     statusId: 1,
-    capability: { capabilityName: "Business Analysis" },
-    band: { bandName: "Consultant" },
-    status: { statusName: "open" },
+    capability: { capabilityName: CapabilityName.BusinessAnalysis },
+    band: { bandName: BandName.Consultant },
+    status: { statusName: Status.Open },
   },
 ];
 
@@ -43,17 +45,17 @@ const expectedResponse: JobRoleResponse[] = [
   {
     roleName: "Software Engineer",
     location: "Belfast",
-    capabilityName: "Engineering",
-    bandName: "Associate",
-    statusName: "open",
+    capabilityName: CapabilityName.Engineering,
+    bandName: BandName.Associate,
+    statusName: Status.Open,
     closingDate: new Date("2026-12-31"),
   },
   {
     roleName: "Business Analyst",
     location: "Birmingham",
-    capabilityName: "Business Analysis",
-    bandName: "Consultant",
-    statusName: "open",
+    capabilityName: CapabilityName.BusinessAnalysis,
+    bandName: BandName.Consultant,
+    statusName: Status.Open,
     closingDate: new Date("2026-11-30"),
   },
 ];
@@ -80,7 +82,7 @@ describe("JobRoleService", () => {
         where: {
           status: {
             is: {
-              statusName: "open",
+              statusName: Status.Open,
             },
           },
         },
