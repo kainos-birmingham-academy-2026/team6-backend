@@ -14,7 +14,6 @@ export type JobStatus = {
   statusName: string;
 };
 
-
 export interface JobRoleWithNames extends JobRole {
   capability: Capability;
   band: Band;

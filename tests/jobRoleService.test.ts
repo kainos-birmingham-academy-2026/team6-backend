@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { BandName, CapabilityName } from "../src/models/jobRoleEnums";
 import type { JobRoleResponse } from "../src/models/JobRoleResponse";
+import { BandName, CapabilityName } from "../src/models/jobRoleEnums";
 import { Status } from "../src/models/status";
 import { JobRoleService } from "../src/services/jobRoleService";
 
