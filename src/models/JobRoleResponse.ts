@@ -5,4 +5,4 @@ export type JobRoleResponse = {
   bandName: string;
   statusName: string;
   closingDate: Date;
-}
+};

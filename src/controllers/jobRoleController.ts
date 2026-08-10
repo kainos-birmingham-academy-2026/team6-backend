@@ -13,7 +13,6 @@ export class JobRoleController {
     }
   }
 
-
   async getJobRoleInfoById(req: Request, res: Response) {
     const id = Number(req.params.id);
 
