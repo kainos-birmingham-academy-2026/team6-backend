@@ -1,6 +1,6 @@
 import express from "express";
-import jobRoleRouter from "./routes/jobRoleRouter";
 import authRouter from "./routes/authRouter";
+import jobRoleRouter from "./routes/jobRoleRouter";
 
 export function createApp() {
   const app = express();

@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
 import argon2 from "argon2";
+import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../prismaClient";
 
@@ -16,20 +16,15 @@ const isValidEmail = (email: string): boolean => {
 // - at least 1 uppercase
 // - at least 1 special character
 const isValidPassword = (password: string): boolean => {
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{9,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{9,}$/;
 
   return passwordRegex.test(password);
 };
 
-
 // =============================
 // REGISTER
 // =============================
-export const register = async (
-  req: Request,
-  res: Response
-) => {
+export const register = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -41,10 +36,7 @@ export const register = async (
     }
 
     // Make sure email/password are strings
-    if (
-      typeof email !== "string" ||
-      typeof password !== "string"
-    ) {
+    if (typeof email !== "string" || typeof password !== "string") {
       return res.status(400).json({
         message: "Email and password must be valid text values",
       });
@@ -117,14 +109,10 @@ export const register = async (
   }
 };
 
-
 // =============================
 // LOGIN
 // =============================
-export const login = async (
-  req: Request,
-  res: Response
-) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -135,10 +123,7 @@ export const login = async (
       });
     }
 
-    if (
-      typeof email !== "string" ||
-      typeof password !== "string"
-    ) {
+    if (typeof email !== "string" || typeof password !== "string") {
       return res.status(400).json({
         message: "Email and password must be valid text values",
       });
@@ -169,10 +154,7 @@ export const login = async (
 
     // Argon2 reads the salt from the stored hash
     // and checks the entered password
-    const validPassword = await argon2.verify(
-      user.password,
-      password
-    );
+    const validPassword = await argon2.verify(user.password, password);
 
     if (!validPassword) {
       return res.status(401).json({
@@ -196,7 +178,7 @@ export const login = async (
       jwtSecret,
       {
         expiresIn: "1h",
-      }
+      },
     );
 
     return res.status(200).json({
