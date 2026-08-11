@@ -1,5 +1,6 @@
 import express from "express";
 import jobRoleRouter from "./routes/jobRoleRouter";
+import authRouter from "./routes/authRouter";
 
 export function createApp() {
   const app = express();
@@ -11,6 +12,7 @@ export function createApp() {
   });
 
   app.use("/job-roles", jobRoleRouter);
+  app.use("/auth", authRouter);
 
   return app;
 }

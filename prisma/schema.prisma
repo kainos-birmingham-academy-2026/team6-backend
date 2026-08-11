@@ -51,3 +51,11 @@ model Status {
   statusName String
   jobRoles   JobRole[]
 }
+
+model User {
+  userId   Int    @id @default(autoincrement())
+  userRole String
+  email    String @unique
+  password String
+}
+
