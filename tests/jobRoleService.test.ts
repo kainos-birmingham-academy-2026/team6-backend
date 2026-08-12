@@ -50,6 +50,7 @@ const mockJobRolesFromDb = [
 
 const expectedResponse: JobRoleResponse[] = [
   {
+    jobRoleId: 1,
     roleName: "Software Engineer",
     location: "Belfast",
     capabilityName: CapabilityName.Engineering,
@@ -58,6 +59,7 @@ const expectedResponse: JobRoleResponse[] = [
     closingDate: new Date("2026-12-31"),
   },
   {
+    jobRoleId: 2,
     roleName: "Business Analyst",
     location: "Birmingham",
     capabilityName: CapabilityName.BusinessAnalysis,

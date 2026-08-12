@@ -20,6 +20,7 @@ export class JobRoleService {
     const jobRoles = await this.jobRoleDao.findAllJobRoles();
 
     return jobRoles.map((jobRole) => ({
+      jobRoleId: jobRole.jobRoleId,
       roleName: jobRole.roleName,
       location: jobRole.location,
       capabilityName: jobRole.capability.capabilityName,
