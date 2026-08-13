@@ -1,15 +1,20 @@
 import { Router } from "express";
+import multer from "multer";
 import { JobRoleController } from "../controllers/jobRoleController";
 import {
   authenticateToken,
   authorizeRoles,
 } from "../middleware/authMiddleware";
 import { UserRole } from "../models/userRole";
+import { ApplicationService } from "../services/applicationService";
 import { JobRoleService } from "../services/jobRoleService";
 
 const jobRoleRouter = Router();
 
-const controller = new JobRoleController(new JobRoleService());
+const upload = multer({ storage: multer.memoryStorage() });
+const jobRoleService = new JobRoleService();
+const applicationService = new ApplicationService();
+const controller = new JobRoleController(jobRoleService, applicationService);
 
 // All job role endpoints require a valid token.
 jobRoleRouter.use(authenticateToken);
@@ -44,6 +49,13 @@ jobRoleRouter.delete(
   "/:id",
   authorizeRoles(UserRole.Admin),
   controller.deleteJobRole.bind(controller),
+);
+
+jobRoleRouter.post(
+  "/:id/apply",
+  authorizeRoles(UserRole.Admin, UserRole.User),
+  upload.single("cv"),
+  controller.applyForJobRole.bind(controller),
 );
 
 export default jobRoleRouter;

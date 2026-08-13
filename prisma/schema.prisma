@@ -1,18 +1,18 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+ 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+ 
 generator client {
   provider = "prisma-client-js"
 }
-
+ 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+ 
 model JobRole {
   jobRoleId    Int      @id @default(autoincrement())
   roleName     String
@@ -20,42 +20,63 @@ model JobRole {
   capabilityId Int
   bandId       Int
   closingDate  DateTime
-
+ 
   description           String?
   resposibilities       String?
   sharepointUrl         String?
   statusId              Int?
   numberOfOpenPositions Int?
-
+ 
   capability Capability @relation(fields: [capabilityId], references: [capabilityId])
   band       Band       @relation(fields: [bandId], references: [bandId])
   status     Status?    @relation(fields: [statusId], references: [statusId])
-
+  applications Applications[]
+ 
   @@map("job-roles")
 }
-
+ 
 model Capability {
   capabilityId   Int       @id @default(autoincrement())
   capabilityName String
   jobRoles       JobRole[]
 }
-
+ 
 model Band {
   bandId   Int       @id @default(autoincrement())
   bandName String
   jobRoles JobRole[]
 }
-
+ 
 model Status {
   statusId   Int       @id @default(autoincrement())
   statusName String
   jobRoles   JobRole[]
 }
-
+ 
 model User {
   userId   Int    @id @default(autoincrement())
   userRole String
   email    String @unique
   password String
+
+  applications Applications[]
 }
 
+model Applications {
+  applicationId       Int    @id @default(autoincrement())
+  userId              Int
+  jobRoleId           Int
+  applicationStatusId Int
+  cv                  String
+
+  user              User              @relation(fields: [userId], references: [userId])
+  jobRole           JobRole           @relation(fields: [jobRoleId], references: [jobRoleId])
+  applicationStatus ApplicationStatus @relation(fields: [applicationStatusId], references: [applicationStatusId])
+}
+
+model ApplicationStatus {
+  applicationStatusId   Int    @id @default(autoincrement())
+  applicationStatusName String
+
+  applications Applications[]
+}
