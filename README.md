@@ -33,9 +33,14 @@ npm install @prisma/client@6
 
 ```env
 DATABASE_URL="postgresql://postgres:password@localhost:5433/job-roles"
+JWT_SECRET="replace-with-a-long-random-value"
 ```
 
 Make sure your database connection uses port `5433`
+
+`JWT_SECRET` signs and verifies the JWTs issued on login and is required for any
+endpoint protected by `authenticateToken` (all `/job-roles` endpoints). Use a
+long, random value and never commit real secrets.
 
 5. Initialize Prisma for PostgreSQL:
 
