@@ -9,7 +9,7 @@ import {
 export class JobRoleController {
   constructor(
     private readonly jobRoleService: JobRoleService,
-    private readonly applicationService?: ApplicationService,
+    private readonly applicationService: ApplicationService,
   ) {}
 
   async getAllJobRoles(_req: Request, res: Response) {
