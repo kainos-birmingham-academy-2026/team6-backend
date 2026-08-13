@@ -1,7 +1,6 @@
 import argon2 from "argon2";
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { UserRole } from "../models/userRole";
 import prisma from "../prismaClient";
 
 // Email validation
@@ -89,7 +88,7 @@ export const register = async (req: Request, res: Response) => {
       data: {
         email: normalisedEmail,
         password: passwordHash,
-        userRole: UserRole.User,
+        userRole: "user",
       },
     });
 

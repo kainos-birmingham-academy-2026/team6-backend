@@ -8,6 +8,13 @@ vi.mock("../src/prismaClient", () => ({
   default: {
     jobRole: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    status: {
+      findFirst: vi.fn(),
     },
   },
 }));
@@ -43,6 +50,7 @@ const mockJobRolesFromDb = [
 
 const expectedResponse: JobRoleResponse[] = [
   {
+    jobRoleId: 1,
     roleName: "Software Engineer",
     location: "Belfast",
     capabilityName: CapabilityName.Engineering,
@@ -51,6 +59,7 @@ const expectedResponse: JobRoleResponse[] = [
     closingDate: new Date("2026-12-31"),
   },
   {
+    jobRoleId: 2,
     roleName: "Business Analyst",
     location: "Birmingham",
     capabilityName: CapabilityName.BusinessAnalysis,
@@ -121,6 +130,112 @@ describe("JobRoleService", () => {
       );
 
       await expect(service.findAllJobRoles()).rejects.toThrow("Database error");
+    });
+  });
+
+  describe("createJobRole", () => {
+    const newJobRoleInput = {
+      roleName: "Software Engineer",
+      location: "Belfast",
+      capabilityId: 1,
+      bandId: 2,
+      closingDate: new Date("2026-12-31"),
+    };
+
+    it("should create a job role with the open status", async () => {
+      vi.mocked(prisma.status.findFirst).mockResolvedValue({
+        statusId: 1,
+        statusName: Status.Open,
+      });
+      vi.mocked(prisma.jobRole.create).mockResolvedValue({
+        ...mockJobRolesFromDb[0],
+        ...newJobRoleInput,
+      } as unknown as Awaited<ReturnType<typeof prisma.jobRole.create>>);
+
+      const result = await service.createJobRole(newJobRoleInput);
+
+      expect(prisma.jobRole.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            statusId: 1,
+            roleName: "Software Engineer",
+          }),
+        }),
+      );
+      expect(result.roleName).toBe("Software Engineer");
+    });
+
+    it("should throw an error when the open status is not configured", async () => {
+      vi.mocked(prisma.status.findFirst).mockResolvedValue(null);
+
+      await expect(service.createJobRole(newJobRoleInput)).rejects.toThrow(
+        "Open status is not configured",
+      );
+      expect(prisma.jobRole.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateJobRole", () => {
+    const updateInput = {
+      roleName: "Updated Role",
+      location: "London",
+      capabilityId: 1,
+      bandId: 2,
+      closingDate: new Date("2026-12-31"),
+    };
+
+    it("should update an existing job role", async () => {
+      vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(
+        mockJobRolesFromDb[0] as unknown as Awaited<
+          ReturnType<typeof prisma.jobRole.findUnique>
+        >,
+      );
+      vi.mocked(prisma.jobRole.update).mockResolvedValue({
+        ...mockJobRolesFromDb[0],
+        ...updateInput,
+      } as unknown as Awaited<ReturnType<typeof prisma.jobRole.update>>);
+
+      const result = await service.updateJobRole(1, updateInput);
+
+      expect(result.roleName).toBe("Updated Role");
+    });
+
+    it("should throw an error when the job role does not exist", async () => {
+      vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(null);
+
+      await expect(service.updateJobRole(999, updateInput)).rejects.toThrow(
+        "Job role not found",
+      );
+      expect(prisma.jobRole.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteJobRole", () => {
+    it("should delete an existing job role", async () => {
+      vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(
+        mockJobRolesFromDb[0] as unknown as Awaited<
+          ReturnType<typeof prisma.jobRole.findUnique>
+        >,
+      );
+      vi.mocked(prisma.jobRole.delete).mockResolvedValue(
+        mockJobRolesFromDb[0] as unknown as Awaited<
+          ReturnType<typeof prisma.jobRole.delete>
+        >,
+      );
+
+      await expect(service.deleteJobRole(1)).resolves.toBeUndefined();
+      expect(prisma.jobRole.delete).toHaveBeenCalledWith({
+        where: { jobRoleId: 1 },
+      });
+    });
+
+    it("should throw an error when the job role does not exist", async () => {
+      vi.mocked(prisma.jobRole.findUnique).mockResolvedValue(null);
+
+      await expect(service.deleteJobRole(999)).rejects.toThrow(
+        "Job role not found",
+      );
+      expect(prisma.jobRole.delete).not.toHaveBeenCalled();
     });
   });
 });
