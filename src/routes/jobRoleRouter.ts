@@ -14,12 +14,36 @@ const controller = new JobRoleController(new JobRoleService());
 // All job role endpoints require a valid token.
 jobRoleRouter.use(authenticateToken);
 
-jobRoleRouter.post("/", controller.createJobRole.bind(controller));
+// Recruitment Admins and Applicants can both view job roles; create/update/delete
+// are restricted to Admins.
+jobRoleRouter.get(
+  "/",
+  authorizeRoles(UserRole.Admin, UserRole.User),
+  controller.getAllJobRoles.bind(controller),
+);
 
-jobRoleRouter.get("/:id", controller.getJobRoleInfoById.bind(controller));
+jobRoleRouter.post(
+  "/",
+  authorizeRoles(UserRole.Admin),
+  controller.createJobRole.bind(controller),
+);
 
-jobRoleRouter.put("/:id", controller.updateJobRole.bind(controller));
+jobRoleRouter.get(
+  "/:id",
+  authorizeRoles(UserRole.Admin, UserRole.User),
+  controller.getJobRoleInfoById.bind(controller),
+);
 
-jobRoleRouter.delete("/:id", controller.deleteJobRole.bind(controller));
+jobRoleRouter.put(
+  "/:id",
+  authorizeRoles(UserRole.Admin),
+  controller.updateJobRole.bind(controller),
+);
+
+jobRoleRouter.delete(
+  "/:id",
+  authorizeRoles(UserRole.Admin),
+  controller.deleteJobRole.bind(controller),
+);
 
 export default jobRoleRouter;
