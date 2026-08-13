@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import type { ApplicationService } from "../services/applicationService";
 import type { JobRoleService } from "../services/jobRoleService";
 import {
   createJobRoleSchema,
@@ -6,7 +7,10 @@ import {
 } from "../validation/jobRoleValidation";
 
 export class JobRoleController {
-  constructor(private readonly jobRoleService: JobRoleService) {}
+  constructor(
+    private readonly jobRoleService: JobRoleService,
+    private readonly applicationService: ApplicationService,
+  ) {}
 
   async getAllJobRoles(_req: Request, res: Response) {
     try {
@@ -110,6 +114,48 @@ export class JobRoleController {
       }
 
       return res.status(500).json({ error: "Failed to delete job role" });
+    }
+  }
+
+  async applyForJobRole(req: Request, res: Response) {
+    // Verify authentication
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ error: "Authentication token is required" });
+    }
+
+    // Get job role ID from URL params
+    const jobRoleId = Number(req.params.id);
+
+    if (!Number.isInteger(jobRoleId) || jobRoleId <= 0) {
+      return res.status(400).json({ error: "Invalid job role id" });
+    }
+
+    // Check if CV file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: "CV file is required" });
+    }
+
+    try {
+      if (!this.applicationService) {
+        return res
+          .status(500)
+          .json({ error: "Application service is not configured" });
+      }
+
+      const result = await this.applicationService.applyForJobRole(
+        req.user.userId,
+        jobRoleId,
+      );
+
+      return res.status(201).json(result);
+    } catch (error) {
+      if (error instanceof Error && error.message === "Job role not found") {
+        return res.status(404).json({ error: "Job role not found" });
+      }
+
+      return res.status(500).json({ error: "Failed to create application" });
     }
   }
 }
