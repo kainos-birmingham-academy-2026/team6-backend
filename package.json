@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
+    "test:integration": "vitest run tests/integration.test.ts",
     "test:ui": "echo \"No UI tests configured for this backend-only service\"",
     "test:coverage": "vitest run --coverage",
     "dev": "tsx watch src/index.ts",
