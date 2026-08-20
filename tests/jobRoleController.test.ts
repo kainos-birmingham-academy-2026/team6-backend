@@ -315,7 +315,9 @@ describe("JobRoleController", () => {
 
     it("should return 404 when the job role does not exist", async () => {
       const applicationService = {
-        applyForJobRole: vi.fn().mockRejectedValue(new Error("Job role not found")),
+        applyForJobRole: vi
+          .fn()
+          .mockRejectedValue(new Error("Job role not found")),
       };
       const applyController = new JobRoleController(
         jobRoleService,
