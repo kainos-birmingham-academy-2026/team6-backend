@@ -218,6 +218,124 @@ describe("JobRoleController", () => {
     });
   });
 
+  describe("applyForJobRole", () => {
+    it("should return 201 when a valid CV is uploaded for a valid job role", async () => {
+      const applicationService = {
+        applyForJobRole: vi.fn().mockResolvedValue({
+          applicationId: 42,
+          status: "in progress",
+        }),
+      };
+      const applyController = new JobRoleController(
+        jobRoleService,
+        applicationService as any,
+      );
+      const req = {
+        user: { userId: 7 },
+        params: { id: "1" },
+        file: { originalname: "resume.pdf" },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await applyController.applyForJobRole(req, res);
+
+      expect(applicationService.applyForJobRole).toHaveBeenCalledWith(7, 1);
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        applicationId: 42,
+        status: "in progress",
+      });
+    });
+
+    it("should return 401 when the user is not authenticated", async () => {
+      const applicationService = {
+        applyForJobRole: vi.fn(),
+      };
+      const applyController = new JobRoleController(
+        jobRoleService,
+        applicationService as any,
+      );
+      const req = {
+        params: { id: "1" },
+        file: { originalname: "resume.pdf" },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await applyController.applyForJobRole(req, res);
+
+      expect(applicationService.applyForJobRole).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Authentication token is required",
+      });
+    });
+
+    it("should return 400 when no CV file is uploaded", async () => {
+      const applicationService = {
+        applyForJobRole: vi.fn(),
+      };
+      const applyController = new JobRoleController(
+        jobRoleService,
+        applicationService as any,
+      );
+      const req = {
+        user: { userId: 7 },
+        params: { id: "1" },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await applyController.applyForJobRole(req, res);
+
+      expect(applicationService.applyForJobRole).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "CV file is required" });
+    });
+
+    it("should return 400 when the job role id is invalid", async () => {
+      const applicationService = {
+        applyForJobRole: vi.fn(),
+      };
+      const applyController = new JobRoleController(
+        jobRoleService,
+        applicationService as any,
+      );
+      const req = {
+        user: { userId: 7 },
+        params: { id: "abc" },
+        file: { originalname: "resume.pdf" },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await applyController.applyForJobRole(req, res);
+
+      expect(applicationService.applyForJobRole).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "Invalid job role id" });
+    });
+
+    it("should return 404 when the job role does not exist", async () => {
+      const applicationService = {
+        applyForJobRole: vi.fn().mockRejectedValue(new Error("Job role not found")),
+      };
+      const applyController = new JobRoleController(
+        jobRoleService,
+        applicationService as any,
+      );
+      const req = {
+        user: { userId: 7 },
+        params: { id: "999" },
+        file: { originalname: "resume.pdf" },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await applyController.applyForJobRole(req, res);
+
+      expect(applicationService.applyForJobRole).toHaveBeenCalledWith(7, 999);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: "Job role not found" });
+    });
+  });
+
   describe("deleteJobRole", () => {
     it("should return 204 when the job role is deleted", async () => {
       vi.mocked(jobRoleService.deleteJobRole).mockResolvedValue(undefined);
