@@ -30,6 +30,8 @@ WORKDIR /app
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends openssl \
+	&& groupadd --system appgroup \
+	&& useradd --system --gid appgroup --home-dir /app --shell /usr/sbin/nologin appuser \
 	&& rm -rf /var/lib/apt/lists/*
  
 # Runtime environment variables for production execution.
@@ -37,9 +39,11 @@ ENV NODE_ENV=production
 ENV PORT=3001
  
 # Copy only what is required to run the compiled app.
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+
+USER appuser
  
 # Document runtime port and start the server.
 EXPOSE 3000
