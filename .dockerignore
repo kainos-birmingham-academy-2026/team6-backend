@@ -1,0 +1,29 @@
+# Dependencies are installed inside Docker.
+node_modules
+npm-debug.log*
+
+# Git metadata is not needed in the image.
+.git
+.gitignore
+
+# Local environment and secrets must not be copied into images.
+.env
+.env.*
+
+# Build and coverage outputs should be recreated inside Docker.
+dist
+coverage
+
+# Tests and local-only API captures are not needed at runtime.
+tests
+api-captures
+
+# Documentation and editor/OS files are not needed in the build context.
+README.md
+*.md
+.vscode
+.idea
+.DS_Store
+
+# Generated Prisma client is regenerated during the Docker build.
+src/generated/prisma

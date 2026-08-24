@@ -2,7 +2,7 @@
 # base image uses Debian/glibc for native Node modules such as argon2.
  
 # Stage 1: Install all dependencies once using lockfile-based, reproducible install.
-FROM node:20-bookworm-slim AS deps
+FROM node:24-bookworm-slim AS deps
 WORKDIR /app
  
 # Install dependencies using lockfile for deterministic builds
@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm ci --ignore-scripts
  
 # Stage 2: Build TypeScript output and remove dev-only dependencies.
-FROM node:20-bookworm-slim AS builder
+FROM node:24-bookworm-slim AS builder
 WORKDIR /app
 
 RUN apt-get update \
@@ -25,7 +25,7 @@ RUN PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 NODE_TLS_REJECT_UNAUTHORIZED=0 npx 
 RUN npm run build && npm prune --omit=dev
  
 # Stage 3: Create a minimal production image with only runtime artifacts.
-FROM node:20-bookworm-slim AS runner
+FROM node:24-bookworm-slim AS runner
 WORKDIR /app
 
 RUN apt-get update \
