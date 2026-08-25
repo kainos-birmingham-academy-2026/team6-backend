@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
   test:
+    name: Test and quality checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,3 +20,16 @@ jobs:
           DATABASE_URL: "postgresql://user:password@localhost:5433/placeholder"
       - run: npm run lint
       - run: npm test
+
+  build:
+    name: Build Docker image
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        env:
+          IMAGE_NAME: team6-backend
+          IMAGE_TAG: ${{ github.sha }}
+        run: docker build --tag "$IMAGE_NAME:$IMAGE_TAG" .
