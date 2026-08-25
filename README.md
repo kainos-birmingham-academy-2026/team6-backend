@@ -4,7 +4,7 @@ Backend service for Team 6 built with Express, TypeScript, and Vitest.
 
 ## Requirements
 
-- Node.js 20 or later
+- Node.js 24 or later
 - npm 10 or later
 - Docker
 

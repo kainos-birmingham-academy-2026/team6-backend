@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import {
   type JobRoleDao,
   JobRoleDaoImpl,
@@ -130,7 +130,7 @@ export class JobRoleService {
     }
 
     if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error instanceof PrismaClientKnownRequestError &&
       error.code === "P2003"
     ) {
       return new Error("Invalid capability or band");
