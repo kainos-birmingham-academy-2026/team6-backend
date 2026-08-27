@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: team6-backend-dev-terraform
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Test and quality checks
