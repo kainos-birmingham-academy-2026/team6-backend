@@ -36,7 +36,7 @@ RUN apt-get update \
  
 # Runtime environment variables for production execution.
 ENV NODE_ENV=production
-ENV PORT=3001
+ENV PORT=3000
  
 # Copy only what is required to run the compiled app.
 COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
