@@ -1,6 +1,28 @@
 import type { JobRole } from "../models/jobRole";
 import { Status } from "../models/status";
 import prisma from "../prismaClient";
+import type { SortableJobRoleColumn } from "../validation/jobRoleValidation";
+
+type SortOrder = "asc" | "desc";
+
+// Relation columns need a nested Prisma orderBy; direct columns map straight through.
+function buildOrderBy(sortBy?: SortableJobRoleColumn, sortOrder?: SortOrder) {
+  if (!sortBy) {
+    return undefined;
+  }
+  const order = sortOrder ?? "asc";
+
+  switch (sortBy) {
+    case "capabilityName":
+      return { capability: { capabilityName: order } };
+    case "bandName":
+      return { band: { bandName: order } };
+    case "statusName":
+      return { status: { statusName: order } };
+    default:
+      return { [sortBy]: order };
+  }
+}
 
 export type Capability = {
   capabilityName: string;
@@ -33,7 +55,10 @@ export type JobRoleWriteInput = {
 };
 
 export interface JobRoleDao {
-  findAllJobRoles(): Promise<JobRoleWithNames[]>;
+  findAllJobRoles(
+    sortBy?: SortableJobRoleColumn,
+    sortOrder?: SortOrder,
+  ): Promise<JobRoleWithNames[]>;
   findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null>;
   findStatusIdByName(statusName: string): Promise<number | null>;
   createJobRole(
@@ -66,7 +91,10 @@ const jobRoleInclude = {
 };
 
 export class JobRoleDaoImpl implements JobRoleDao {
-  async findAllJobRoles(): Promise<JobRoleWithNames[]> {
+  async findAllJobRoles(
+    sortBy?: SortableJobRoleColumn,
+    sortOrder?: SortOrder,
+  ): Promise<JobRoleWithNames[]> {
     const jobRoles = (await prisma.jobRole.findMany({
       where: {
         status: {
@@ -75,6 +103,7 @@ export class JobRoleDaoImpl implements JobRoleDao {
           },
         },
       },
+      orderBy: buildOrderBy(sortBy, sortOrder),
       include: {
         capability: {
           select: {

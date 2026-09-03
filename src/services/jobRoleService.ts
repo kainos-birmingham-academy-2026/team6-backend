@@ -10,14 +10,18 @@ import type { JobRoleResponse } from "../models/JobRoleResponse";
 import { Status } from "../models/status";
 import type {
   CreateJobRoleInput,
+  SortableJobRoleColumn,
   UpdateJobRoleInput,
 } from "../validation/jobRoleValidation";
 
 export class JobRoleService {
   constructor(private readonly jobRoleDao: JobRoleDao = new JobRoleDaoImpl()) {}
 
-  async findAllJobRoles(): Promise<JobRoleResponse[]> {
-    const jobRoles = await this.jobRoleDao.findAllJobRoles();
+  async findAllJobRoles(
+    sortBy?: SortableJobRoleColumn,
+    sortOrder?: "asc" | "desc",
+  ): Promise<JobRoleResponse[]> {
+    const jobRoles = await this.jobRoleDao.findAllJobRoles(sortBy, sortOrder);
 
     return jobRoles.map((jobRole) => ({
       jobRoleId: jobRole.jobRoleId,
