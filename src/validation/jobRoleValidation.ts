@@ -48,4 +48,3 @@ export const jobRoleSortQuerySchema = z.object({
 
 export type SortableJobRoleColumn = (typeof sortableJobRoleColumns)[number];
 export type JobRoleSortQuery = z.infer<typeof jobRoleSortQuerySchema>;
-
