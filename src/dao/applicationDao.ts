@@ -147,4 +147,3 @@ export class ApplicationDaoImpl implements ApplicationDao {
     });
   }
 }
-

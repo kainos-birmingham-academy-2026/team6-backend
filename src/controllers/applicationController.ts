@@ -6,7 +6,9 @@ export class ApplicationController {
 
   async getMyApplications(req: Request, res: Response) {
     if (!req.user) {
-      return res.status(401).json({ error: "Authentication token is required" });
+      return res
+        .status(401)
+        .json({ error: "Authentication token is required" });
     }
 
     try {

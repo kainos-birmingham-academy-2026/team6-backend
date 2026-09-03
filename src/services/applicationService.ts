@@ -62,7 +62,8 @@ export class ApplicationService {
 
     return applications.map((application) => ({
       applicationId: application.applicationId,
-      applicationStatusName: application.applicationStatus.applicationStatusName,
+      applicationStatusName:
+        application.applicationStatus.applicationStatusName,
       jobRoleId: application.jobRole.jobRoleId,
       roleName: application.jobRole.roleName,
       location: application.jobRole.location,

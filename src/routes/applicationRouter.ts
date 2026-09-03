@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { ApplicationController } from "../controllers/applicationController";
-import { authenticateToken, authorizeRoles } from "../middleware/authMiddleware";
+import {
+  authenticateToken,
+  authorizeRoles,
+} from "../middleware/authMiddleware";
 import { UserRole } from "../models/userRole";
 import { ApplicationService } from "../services/applicationService";
 

@@ -37,10 +37,16 @@ describe("ApplicationService", () => {
   describe("applyForJobRole", () => {
     it("creates an application when the job role exists and the user hasn't applied before", async () => {
       vi.mocked(jobRoleDao.findJobRoleById).mockResolvedValue(
-        mockJobRole as unknown as Awaited<ReturnType<typeof jobRoleDao.findJobRoleById>>,
+        mockJobRole as unknown as Awaited<
+          ReturnType<typeof jobRoleDao.findJobRoleById>
+        >,
       );
-      vi.mocked(applicationDao.findApplicationByUserAndJobRole).mockResolvedValue(null);
-      vi.mocked(applicationDao.findApplicationStatusIdByName).mockResolvedValue(1);
+      vi.mocked(
+        applicationDao.findApplicationByUserAndJobRole,
+      ).mockResolvedValue(null);
+      vi.mocked(applicationDao.findApplicationStatusIdByName).mockResolvedValue(
+        1,
+      );
       vi.mocked(applicationDao.createApplication).mockResolvedValue({
         applicationId: 10,
         userId: 5,
@@ -63,15 +69,21 @@ describe("ApplicationService", () => {
     it("throws when the job role does not exist", async () => {
       vi.mocked(jobRoleDao.findJobRoleById).mockResolvedValue(null);
 
-      await expect(service.applyForJobRole(5, 1)).rejects.toThrow("Job role not found");
+      await expect(service.applyForJobRole(5, 1)).rejects.toThrow(
+        "Job role not found",
+      );
       expect(applicationDao.createApplication).not.toHaveBeenCalled();
     });
 
     it("throws when the user has already applied for the job role", async () => {
       vi.mocked(jobRoleDao.findJobRoleById).mockResolvedValue(
-        mockJobRole as unknown as Awaited<ReturnType<typeof jobRoleDao.findJobRoleById>>,
+        mockJobRole as unknown as Awaited<
+          ReturnType<typeof jobRoleDao.findJobRoleById>
+        >,
       );
-      vi.mocked(applicationDao.findApplicationByUserAndJobRole).mockResolvedValue({
+      vi.mocked(
+        applicationDao.findApplicationByUserAndJobRole,
+      ).mockResolvedValue({
         applicationId: 9,
         userId: 5,
         jobRoleId: 1,
