@@ -2,6 +2,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import {
   type JobRoleDao,
   JobRoleDaoImpl,
+  type JobRoleFilters,
   type JobRoleWithNames,
   type JobRoleWriteInput,
 } from "../dao/jobRoleDao";
@@ -18,6 +19,22 @@ export class JobRoleService {
 
   async findAllJobRoles(): Promise<JobRoleResponse[]> {
     const jobRoles = await this.jobRoleDao.findAllJobRoles();
+
+    return jobRoles.map((jobRole) => ({
+      jobRoleId: jobRole.jobRoleId,
+      roleName: jobRole.roleName,
+      location: jobRole.location,
+      capabilityName: jobRole.capability.capabilityName,
+      bandName: jobRole.band.bandName,
+      statusName: jobRole.status?.statusName ?? "unknown",
+      closingDate: jobRole.closingDate,
+    }));
+  }
+
+  async findJobRolesWithFilters(
+    filters: JobRoleFilters,
+  ): Promise<JobRoleResponse[]> {
+    const jobRoles = await this.jobRoleDao.findJobRolesWithFilters(filters);
 
     return jobRoles.map((jobRole) => ({
       jobRoleId: jobRole.jobRoleId,

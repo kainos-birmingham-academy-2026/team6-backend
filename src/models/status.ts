@@ -1,3 +1,3 @@
 export enum Status {
-  Open = "open",
+  Open = "Open",
 }
