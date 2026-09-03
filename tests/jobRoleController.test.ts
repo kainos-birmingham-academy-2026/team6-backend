@@ -48,6 +48,15 @@ const validJobRoleBody = {
 
 const mockRequest = {} as Request;
 
+const mockPageResponse = {
+  items: mockJobRoles,
+  total: 2,
+  limit: 10,
+  offset: 0,
+} as unknown as Awaited<
+  ReturnType<typeof JobRoleService.prototype.findAllJobRoles>
+>;
+
 const mockResponse = () => {
   const res = {} as Response;
   res.status = vi.fn().mockReturnValue(res);
@@ -74,26 +83,40 @@ describe("JobRoleController", () => {
   describe("getAllJobRoles", () => {
     it("should return 200 with a list of job roles", async () => {
       vi.mocked(jobRoleService.findAllJobRoles).mockResolvedValue(
-        mockJobRoles as unknown as Awaited<
-          ReturnType<typeof jobRoleService.findAllJobRoles>
-        >,
+        mockPageResponse,
       );
       const res = mockResponse();
 
       await controller.getAllJobRoles(mockRequest, res);
 
+      expect(jobRoleService.findAllJobRoles).toHaveBeenCalledWith(
+        10,
+        0,
+        undefined,
+        undefined,
+      );
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(mockJobRoles);
+      expect(res.json).toHaveBeenCalledWith(mockPageResponse);
     });
 
     it("should return 200 with an empty array when there are no job roles", async () => {
-      vi.mocked(jobRoleService.findAllJobRoles).mockResolvedValue([]);
+      vi.mocked(jobRoleService.findAllJobRoles).mockResolvedValue({
+        items: [],
+        total: 0,
+        limit: 10,
+        offset: 0,
+      });
       const res = mockResponse();
 
       await controller.getAllJobRoles(mockRequest, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith([]);
+      expect(res.json).toHaveBeenCalledWith({
+        items: [],
+        total: 0,
+        limit: 10,
+        offset: 0,
+      });
     });
 
     it("should return 500 when the service throws an error", async () => {
@@ -108,6 +131,49 @@ describe("JobRoleController", () => {
       expect(res.json).toHaveBeenCalledWith({
         error: "Failed to fetch job roles",
       });
+    });
+
+    it("should pass pagination and sorting parameters to the service", async () => {
+      vi.mocked(jobRoleService.findAllJobRoles).mockResolvedValue(
+        mockPageResponse,
+      );
+      const req = {
+        query: {
+          limit: "10",
+          offset: "20",
+          sortBy: "roleName",
+          sortOrder: "desc",
+        },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await controller.getAllJobRoles(req, res);
+
+      expect(jobRoleService.findAllJobRoles).toHaveBeenCalledWith(
+        10,
+        20,
+        "roleName",
+        "desc",
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it("should return 400 for invalid pagination parameters", async () => {
+      const req = {
+        query: {
+          limit: "0",
+          offset: "-10",
+        },
+      } as unknown as Request;
+      const res = mockResponse();
+
+      await controller.getAllJobRoles(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Invalid job role query parameters",
+      });
+      expect(jobRoleService.findAllJobRoles).not.toHaveBeenCalled();
     });
   });
 

@@ -8,6 +8,7 @@ vi.mock("../src/prismaClient", () => ({
   default: {
     jobRole: {
       findMany: vi.fn(),
+      count: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -84,8 +85,9 @@ describe("JobRoleService", () => {
           ReturnType<typeof prisma.jobRole.findMany>
         >,
       );
+      vi.mocked(prisma.jobRole.count).mockResolvedValue(2);
 
-      const result = await service.findAllJobRoles();
+      const result = await service.findAllJobRoles(10, 0);
 
       expect(prisma.jobRole.findMany).toHaveBeenCalledWith({
         where: {
@@ -112,16 +114,30 @@ describe("JobRoleService", () => {
             },
           },
         },
+        orderBy: undefined,
+        skip: 0,
+        take: 10,
       });
-      expect(result).toEqual(expectedResponse);
+      expect(result).toEqual({
+        items: expectedResponse,
+        total: 2,
+        limit: 10,
+        offset: 0,
+      });
     });
 
     it("should return an empty array when there are no job roles", async () => {
       vi.mocked(prisma.jobRole.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.jobRole.count).mockResolvedValue(0);
 
-      const result = await service.findAllJobRoles();
+      const result = await service.findAllJobRoles(10, 0);
 
-      expect(result).toEqual([]);
+      expect(result).toEqual({
+        items: [],
+        total: 0,
+        limit: 10,
+        offset: 0,
+      });
     });
 
     it("should throw an error when the database call fails", async () => {
@@ -129,7 +145,31 @@ describe("JobRoleService", () => {
         new Error("Database error"),
       );
 
-      await expect(service.findAllJobRoles()).rejects.toThrow("Database error");
+      await expect(service.findAllJobRoles(10, 0)).rejects.toThrow(
+        "Database error",
+      );
+    });
+
+    it("should request the requested page and preserve sorting", async () => {
+      vi.mocked(prisma.jobRole.findMany).mockResolvedValue(
+        mockJobRolesFromDb as unknown as Awaited<
+          ReturnType<typeof prisma.jobRole.findMany>
+        >,
+      );
+      vi.mocked(prisma.jobRole.count).mockResolvedValue(25);
+
+      const result = await service.findAllJobRoles(10, 10, "roleName", "asc");
+
+      expect(prisma.jobRole.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: { roleName: "asc" },
+          skip: 10,
+          take: 10,
+        }),
+      );
+      expect(result.total).toBe(25);
+      expect(result.limit).toBe(10);
+      expect(result.offset).toBe(10);
     });
   });
 

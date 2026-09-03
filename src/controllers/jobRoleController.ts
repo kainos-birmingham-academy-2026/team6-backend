@@ -3,7 +3,7 @@ import type { ApplicationService } from "../services/applicationService";
 import type { JobRoleService } from "../services/jobRoleService";
 import {
   createJobRoleSchema,
-  jobRoleSortQuerySchema,
+  jobRoleQuerySchema,
   updateJobRoleSchema,
 } from "../validation/jobRoleValidation";
 
@@ -14,22 +14,26 @@ export class JobRoleController {
   ) {}
 
   async getAllJobRoles(req: Request, res: Response) {
-    const parsedQuery = jobRoleSortQuerySchema.safeParse(req.query ?? {});
+    const parsedQuery = jobRoleQuerySchema.safeParse(req.query ?? {});
 
     if (!parsedQuery.success) {
-      return res.status(400).json({ error: "Invalid sort query parameters" });
+      return res
+        .status(400)
+        .json({ error: "Invalid job role query parameters" });
     }
 
-    const { sortBy, sortOrder } = parsedQuery.data;
+    const { limit, offset, sortBy, sortOrder } = parsedQuery.data;
 
     try {
       const jobRoles = await this.jobRoleService.findAllJobRoles(
+        limit,
+        offset,
         sortBy,
         sortOrder,
       );
-      res.status(200).json(jobRoles);
+      return res.status(200).json(jobRoles);
     } catch (_error) {
-      res.status(500).json({ error: "Failed to fetch job roles" });
+      return res.status(500).json({ error: "Failed to fetch job roles" });
     }
   }
 

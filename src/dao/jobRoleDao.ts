@@ -42,6 +42,13 @@ export interface JobRoleWithNames extends JobRole {
   status: JobStatus | null;
 }
 
+export type JobRolePage = {
+  items: JobRoleWithNames[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type JobRoleWriteInput = {
   roleName: string;
   location: string;
@@ -56,9 +63,11 @@ export type JobRoleWriteInput = {
 
 export interface JobRoleDao {
   findAllJobRoles(
+    limit: number,
+    offset: number,
     sortBy?: SortableJobRoleColumn,
     sortOrder?: SortOrder,
-  ): Promise<JobRoleWithNames[]>;
+  ): Promise<JobRolePage>;
   findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null>;
   findStatusIdByName(statusName: string): Promise<number | null>;
   createJobRole(
@@ -92,41 +101,59 @@ const jobRoleInclude = {
 
 export class JobRoleDaoImpl implements JobRoleDao {
   async findAllJobRoles(
+    limit: number,
+    offset: number,
     sortBy?: SortableJobRoleColumn,
     sortOrder?: SortOrder,
-  ): Promise<JobRoleWithNames[]> {
-    const jobRoles = (await prisma.jobRole.findMany({
-      where: {
-        status: {
-          is: {
-            statusName: Status.Open,
-          },
+  ): Promise<JobRolePage> {
+    const where = {
+      status: {
+        is: {
+          statusName: Status.Open,
         },
       },
-      orderBy: buildOrderBy(sortBy, sortOrder),
-      include: {
-        capability: {
-          select: {
-            capabilityName: true,
-          },
-        },
-        band: {
-          select: {
-            bandName: true,
-          },
-        },
-        status: {
-          select: {
-            statusName: true,
-          },
-        },
-      },
-    })) as Array<JobRoleWithNames & { resposibilities?: string }>;
+    };
 
-    return jobRoles.map((jobRole) => ({
+    const [jobRoles, total] = await Promise.all([
+      prisma.jobRole.findMany({
+        where,
+        orderBy: buildOrderBy(sortBy, sortOrder),
+        skip: offset,
+        take: limit,
+        include: {
+          capability: {
+            select: {
+              capabilityName: true,
+            },
+          },
+          band: {
+            select: {
+              bandName: true,
+            },
+          },
+          status: {
+            select: {
+              statusName: true,
+            },
+          },
+        },
+      }),
+      prisma.jobRole.count({ where }),
+    ]);
+
+    const items = (
+      jobRoles as Array<JobRoleWithNames & { resposibilities?: string }>
+    ).map((jobRole) => ({
       ...jobRole,
       responsibilities: jobRole.responsibilities ?? jobRole.resposibilities,
     }));
+
+    return {
+      items,
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null> {
