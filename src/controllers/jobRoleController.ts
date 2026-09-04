@@ -171,6 +171,13 @@ export class JobRoleController {
         return res.status(404).json({ error: "Job role not found" });
       }
 
+      if (
+        error instanceof Error &&
+        error.message === "You have already applied for this job role"
+      ) {
+        return res.status(409).json({ error: error.message });
+      }
+
       return res.status(500).json({ error: "Failed to create application" });
     }
   }
