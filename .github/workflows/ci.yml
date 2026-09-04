@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
     branches: [main]
+  # Fired by the frontend repo after it pushes a new image, so the frontend container app redeploys.
+  repository_dispatch:
+    types: [frontend-deployed]
 
 concurrency:
   group: team6-backend-dev-terraform
@@ -89,8 +92,8 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=environments/dev.tfvars -input=false -lock-timeout=5m
+        run: terraform plan -var-file=environments/dev.tfvars -var="backend_image_tag=${{ github.sha }}" -var="deploy_id=r${{ github.run_id }}" -input=false -lock-timeout=5m
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -var-file=environments/dev.tfvars -input=false -lock-timeout=5m
+        if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'repository_dispatch'
+        run: terraform apply -auto-approve -var-file=environments/dev.tfvars -var="backend_image_tag=${{ github.sha }}" -var="deploy_id=r${{ github.run_id }}" -input=false -lock-timeout=5m

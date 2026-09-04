@@ -15,12 +15,29 @@ export type ApplicationResponse = {
   cv: string;
 };
 
+export type ApplicationWithJobRole = ApplicationResponse & {
+  applicationStatus: { applicationStatusName: string };
+  jobRole: {
+    jobRoleId: number;
+    roleName: string;
+    location: string;
+    closingDate: Date;
+    capability: { capabilityName: string };
+    band: { bandName: string };
+  };
+};
+
 export interface ApplicationDao {
   createApplication(data: ApplicationCreateInput): Promise<ApplicationResponse>;
   findApplicationById(
     applicationId: number,
   ): Promise<ApplicationResponse | null>;
   findApplicationStatusIdByName(statusName: string): Promise<number | null>;
+  findApplicationsByUserId(userId: number): Promise<ApplicationWithJobRole[]>;
+  findApplicationByUserAndJobRole(
+    userId: number,
+    jobRoleId: number,
+  ): Promise<ApplicationResponse | null>;
 }
 
 export class ApplicationDaoImpl implements ApplicationDao {
@@ -78,5 +95,55 @@ export class ApplicationDaoImpl implements ApplicationDao {
     });
 
     return status?.applicationStatusId ?? null;
+  }
+
+  async findApplicationByUserAndJobRole(
+    userId: number,
+    jobRoleId: number,
+  ): Promise<ApplicationResponse | null> {
+    const application = await prisma.applications.findFirst({
+      where: {
+        userId,
+        jobRoleId,
+      },
+      select: {
+        applicationId: true,
+        userId: true,
+        jobRoleId: true,
+        applicationStatusId: true,
+        cv: true,
+      },
+    });
+
+    return application;
+  }
+
+  async findApplicationsByUserId(
+    userId: number,
+  ): Promise<ApplicationWithJobRole[]> {
+    return prisma.applications.findMany({
+      where: { userId },
+      orderBy: { applicationId: "desc" },
+      select: {
+        applicationId: true,
+        userId: true,
+        jobRoleId: true,
+        applicationStatusId: true,
+        cv: true,
+        applicationStatus: {
+          select: { applicationStatusName: true },
+        },
+        jobRole: {
+          select: {
+            jobRoleId: true,
+            roleName: true,
+            location: true,
+            closingDate: true,
+            capability: { select: { capabilityName: true } },
+            band: { select: { bandName: true } },
+          },
+        },
+      },
+    });
   }
 }
