@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import type { ParsedQs } from "qs";
 import type { ApplicationService } from "../services/applicationService";
 import type { JobRoleService } from "../services/jobRoleService";
 import {
@@ -14,6 +15,26 @@ export class JobRoleController {
   ) {}
 
   async getAllJobRoles(req: Request, res: Response) {
+    const hasFilters =
+      req.query.search ||
+      req.query.capabilities ||
+      req.query.bands ||
+      req.query.locations;
+
+    if (hasFilters) {
+      try {
+        const filters = this.parseFilters(req.query);
+        const jobRoles =
+          await this.jobRoleService.findJobRolesWithFilters(filters);
+        return res.status(200).json(jobRoles);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("Invalid")) {
+          return res.status(400).json({ error: error.message });
+        }
+        return res.status(500).json({ error: "Failed to fetch job roles" });
+      }
+    }
+
     const parsedQuery = jobRoleQuerySchema.safeParse(req.query ?? {});
 
     if (!parsedQuery.success) {
@@ -35,6 +56,70 @@ export class JobRoleController {
     } catch (_error) {
       return res.status(500).json({ error: "Failed to fetch job roles" });
     }
+  }
+
+  private parseFilters(query: ParsedQs): any {
+    const filters: any = {};
+
+    // Parse search parameter
+    if (query.search && typeof query.search === "string") {
+      filters.search = query.search;
+    }
+
+    // Parse capabilities parameter (can be comma-separated IDs or array)
+    if (query.capabilities) {
+      const capabilitiesParam = Array.isArray(query.capabilities)
+        ? query.capabilities.join(",")
+        : String(query.capabilities);
+      const capabilities = capabilitiesParam
+        .split(",")
+        .map((id) => {
+          const num = Number(id.trim());
+          if (!Number.isInteger(num) || num <= 0) {
+            throw new Error("Invalid capability ID");
+          }
+          return num;
+        })
+        .filter((id) => !Number.isNaN(id));
+      if (capabilities.length > 0) {
+        filters.capabilities = capabilities;
+      }
+    }
+
+    // Parse bands parameter (can be comma-separated IDs or array)
+    if (query.bands) {
+      const bandsParam = Array.isArray(query.bands)
+        ? query.bands.join(",")
+        : String(query.bands);
+      const bands = bandsParam
+        .split(",")
+        .map((id) => {
+          const num = Number(id.trim());
+          if (!Number.isInteger(num) || num <= 0) {
+            throw new Error("Invalid band ID");
+          }
+          return num;
+        })
+        .filter((id) => !Number.isNaN(id));
+      if (bands.length > 0) {
+        filters.bands = bands;
+      }
+    }
+
+    // Parse locations parameter (can be comma-separated values or array)
+    if (query.locations) {
+      const locationsParam = Array.isArray(query.locations)
+        ? query.locations
+        : [String(query.locations)];
+      const locations = locationsParam
+        .map((loc) => String(loc).trim())
+        .filter((loc) => loc.length > 0);
+      if (locations.length > 0) {
+        filters.locations = locations;
+      }
+    }
+
+    return filters;
   }
 
   async getJobRoleInfoById(req: Request, res: Response) {

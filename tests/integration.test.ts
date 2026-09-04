@@ -40,7 +40,7 @@ const openJobRole = {
     bandName: "Associate",
   },
   status: {
-    statusName: "open",
+    statusName: "Open",
   },
 };
 
@@ -132,7 +132,7 @@ describe("integration endpoints", () => {
       where: {
         status: {
           is: {
-            statusName: "open",
+            statusName: "Open",
           },
         },
       },
