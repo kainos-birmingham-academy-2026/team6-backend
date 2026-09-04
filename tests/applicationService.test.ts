@@ -156,7 +156,10 @@ describe("ApplicationService", () => {
       const result = await service.updateApplicationStatus(10, "rejected");
 
       expect(result).toEqual({ applicationId: 10, status: "rejected" });
-      expect(applicationDao.updateApplicationStatus).toHaveBeenCalledWith(10, 2);
+      expect(applicationDao.updateApplicationStatus).toHaveBeenCalledWith(
+        10,
+        2,
+      );
       expect(analytics.trackEvent).toHaveBeenCalledWith("user-5", {
         name: "job_application_rejected",
         params: { applicationId: 10 },

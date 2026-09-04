@@ -48,8 +48,9 @@ export class ApplicationController {
         return res.status(404).json({ error: "Application not found" });
       }
 
-      return res.status(500).json({ error: "Failed to update application status" });
+      return res
+        .status(500)
+        .json({ error: "Failed to update application status" });
     }
   }
 }
-
