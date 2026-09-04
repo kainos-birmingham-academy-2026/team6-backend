@@ -21,3 +21,16 @@ variable "project_name" {
   default     = "team6"
 }
 
+# Passed as the commit SHA by CI so each deploy changes the container template and forces a new revision.
+variable "backend_image_tag" {
+  description = "Image tag for the backend container app."
+  type        = string
+  default     = "latest"
+}
+
+variable "frontend_image_tag" {
+  description = "Image tag for the frontend container app."
+  type        = string
+  default     = "latest"
+}
+

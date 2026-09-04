@@ -107,7 +107,7 @@ resource "azurerm_container_app" "backend" {
 
     container {
       name   = "backend"
-      image  = "acraiacademy26.azurecr.io/team6-backend:latest"
+      image  = "acraiacademy26.azurecr.io/team6-backend:${var.backend_image_tag}"
       cpu    = 0.25
       memory = "0.5Gi"
 
@@ -168,7 +168,7 @@ resource "azurerm_container_app" "frontend" {
 
     container {
       name   = "frontend"
-      image  = "acraiacademy26.azurecr.io/team6-frontend:latest"
+      image  = "acraiacademy26.azurecr.io/team6-frontend:${var.frontend_image_tag}"
       cpu    = 0.25
       memory = "0.5Gi"
 
