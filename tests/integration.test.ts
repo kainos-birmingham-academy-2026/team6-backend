@@ -8,6 +8,7 @@ const prismaMock = vi.hoisted(() => ({
   },
   jobRole: {
     findMany: vi.fn(),
+    count: vi.fn(),
   },
 }));
 
@@ -99,6 +100,7 @@ describe("integration endpoints", () => {
       password: passwordHash,
     });
     prismaMock.jobRole.findMany.mockResolvedValue([openJobRole]);
+    prismaMock.jobRole.count.mockResolvedValue(1);
 
     const loginResponse = await request(app).post("/auth/login").send({
       email: testUser.email,
@@ -110,17 +112,22 @@ describe("integration endpoints", () => {
       .set("Authorization", `Bearer ${loginResponse.body.token}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([
-      {
-        jobRoleId: openJobRole.jobRoleId,
-        roleName: openJobRole.roleName,
-        location: openJobRole.location,
-        capabilityName: "Engineering",
-        bandName: "Associate",
-        statusName: "open",
-        closingDate: openJobRole.closingDate.toISOString(),
-      },
-    ]);
+    expect(response.body).toEqual({
+      items: [
+        {
+          jobRoleId: openJobRole.jobRoleId,
+          roleName: openJobRole.roleName,
+          location: openJobRole.location,
+          capabilityName: "Engineering",
+          bandName: "Associate",
+          statusName: "open",
+          closingDate: openJobRole.closingDate.toISOString(),
+        },
+      ],
+      total: 1,
+      limit: 10,
+      offset: 0,
+    });
     expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith({
       where: {
         status: {
@@ -129,6 +136,9 @@ describe("integration endpoints", () => {
           },
         },
       },
+      orderBy: undefined,
+      skip: 0,
+      take: 10,
       include: {
         capability: {
           select: {

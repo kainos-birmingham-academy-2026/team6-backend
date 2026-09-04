@@ -1,6 +1,28 @@
 import type { JobRole } from "../models/jobRole";
 import { Status } from "../models/status";
 import prisma from "../prismaClient";
+import type { SortableJobRoleColumn } from "../validation/jobRoleValidation";
+
+type SortOrder = "asc" | "desc";
+
+// Relation columns need a nested Prisma orderBy; direct columns map straight through.
+function buildOrderBy(sortBy?: SortableJobRoleColumn, sortOrder?: SortOrder) {
+  if (!sortBy) {
+    return undefined;
+  }
+  const order = sortOrder ?? "asc";
+
+  switch (sortBy) {
+    case "capabilityName":
+      return { capability: { capabilityName: order } };
+    case "bandName":
+      return { band: { bandName: order } };
+    case "statusName":
+      return { status: { statusName: order } };
+    default:
+      return { [sortBy]: order };
+  }
+}
 
 export type Capability = {
   capabilityName: string;
@@ -20,6 +42,13 @@ export interface JobRoleWithNames extends JobRole {
   status: JobStatus | null;
 }
 
+export type JobRolePage = {
+  items: JobRoleWithNames[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type JobRoleWriteInput = {
   roleName: string;
   location: string;
@@ -33,7 +62,12 @@ export type JobRoleWriteInput = {
 };
 
 export interface JobRoleDao {
-  findAllJobRoles(): Promise<JobRoleWithNames[]>;
+  findAllJobRoles(
+    limit: number,
+    offset: number,
+    sortBy?: SortableJobRoleColumn,
+    sortOrder?: SortOrder,
+  ): Promise<JobRolePage>;
   findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null>;
   findStatusIdByName(statusName: string): Promise<number | null>;
   createJobRole(
@@ -66,38 +100,60 @@ const jobRoleInclude = {
 };
 
 export class JobRoleDaoImpl implements JobRoleDao {
-  async findAllJobRoles(): Promise<JobRoleWithNames[]> {
-    const jobRoles = (await prisma.jobRole.findMany({
-      where: {
-        status: {
-          is: {
-            statusName: Status.Open,
-          },
+  async findAllJobRoles(
+    limit: number,
+    offset: number,
+    sortBy?: SortableJobRoleColumn,
+    sortOrder?: SortOrder,
+  ): Promise<JobRolePage> {
+    const where = {
+      status: {
+        is: {
+          statusName: Status.Open,
         },
       },
-      include: {
-        capability: {
-          select: {
-            capabilityName: true,
-          },
-        },
-        band: {
-          select: {
-            bandName: true,
-          },
-        },
-        status: {
-          select: {
-            statusName: true,
-          },
-        },
-      },
-    })) as Array<JobRoleWithNames & { resposibilities?: string }>;
+    };
 
-    return jobRoles.map((jobRole) => ({
+    const [jobRoles, total] = await Promise.all([
+      prisma.jobRole.findMany({
+        where,
+        orderBy: buildOrderBy(sortBy, sortOrder),
+        skip: offset,
+        take: limit,
+        include: {
+          capability: {
+            select: {
+              capabilityName: true,
+            },
+          },
+          band: {
+            select: {
+              bandName: true,
+            },
+          },
+          status: {
+            select: {
+              statusName: true,
+            },
+          },
+        },
+      }),
+      prisma.jobRole.count({ where }),
+    ]);
+
+    const items = (
+      jobRoles as Array<JobRoleWithNames & { resposibilities?: string }>
+    ).map((jobRole) => ({
       ...jobRole,
       responsibilities: jobRole.responsibilities ?? jobRole.resposibilities,
     }));
+
+    return {
+      items,
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null> {

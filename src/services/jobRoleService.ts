@@ -6,28 +6,44 @@ import {
   type JobRoleWriteInput,
 } from "../dao/jobRoleDao";
 import type { JobRoleDetailedResponse } from "../models/JobRoleDetailedResponse";
-import type { JobRoleResponse } from "../models/JobRoleResponse";
+import type { JobRolePageResponse } from "../models/JobRolePageResponse";
 import { Status } from "../models/status";
 import type {
   CreateJobRoleInput,
+  SortableJobRoleColumn,
   UpdateJobRoleInput,
 } from "../validation/jobRoleValidation";
 
 export class JobRoleService {
   constructor(private readonly jobRoleDao: JobRoleDao = new JobRoleDaoImpl()) {}
 
-  async findAllJobRoles(): Promise<JobRoleResponse[]> {
-    const jobRoles = await this.jobRoleDao.findAllJobRoles();
+  async findAllJobRoles(
+    limit: number,
+    offset: number,
+    sortBy?: SortableJobRoleColumn,
+    sortOrder?: "asc" | "desc",
+  ): Promise<JobRolePageResponse> {
+    const page = await this.jobRoleDao.findAllJobRoles(
+      limit,
+      offset,
+      sortBy,
+      sortOrder,
+    );
 
-    return jobRoles.map((jobRole) => ({
-      jobRoleId: jobRole.jobRoleId,
-      roleName: jobRole.roleName,
-      location: jobRole.location,
-      capabilityName: jobRole.capability.capabilityName,
-      bandName: jobRole.band.bandName,
-      statusName: jobRole.status?.statusName ?? "unknown",
-      closingDate: jobRole.closingDate,
-    }));
+    return {
+      items: page.items.map((jobRole) => ({
+        jobRoleId: jobRole.jobRoleId,
+        roleName: jobRole.roleName,
+        location: jobRole.location,
+        capabilityName: jobRole.capability.capabilityName,
+        bandName: jobRole.band.bandName,
+        statusName: jobRole.status?.statusName ?? "unknown",
+        closingDate: jobRole.closingDate,
+      })),
+      total: page.total,
+      limit: page.limit,
+      offset: page.offset,
+    };
   }
 
   async getJobRoleDetailById(id: number): Promise<JobRoleDetailedResponse> {

@@ -31,3 +31,27 @@ export const updateJobRoleSchema = jobRoleSchema;
 
 export type CreateJobRoleInput = z.infer<typeof createJobRoleSchema>;
 export type UpdateJobRoleInput = z.infer<typeof updateJobRoleSchema>;
+
+export const sortableJobRoleColumns = [
+  "roleName",
+  "location",
+  "capabilityName",
+  "bandName",
+  "closingDate",
+  "statusName",
+] as const;
+
+export const jobRoleSortQuerySchema = z.object({
+  sortBy: z.enum(sortableJobRoleColumns).optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
+export const jobRoleQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
+  sortBy: z.enum(sortableJobRoleColumns).optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
+export type SortableJobRoleColumn = (typeof sortableJobRoleColumns)[number];
+export type JobRoleSortQuery = z.infer<typeof jobRoleSortQuerySchema>;
