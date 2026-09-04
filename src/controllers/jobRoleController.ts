@@ -29,7 +29,7 @@ export class JobRoleController {
       );
       res.status(200).json(jobRoles);
     } catch (_error) {
-      res.status(500).json({ error: "Failed to fetch job roles" });
+      return res.status(500).json({ error: "Failed to fetch job roles" });
     }
   }
 

@@ -42,6 +42,13 @@ export interface JobRoleWithNames extends JobRole {
   status: JobStatus | null;
 }
 
+export type JobRolePage = {
+  items: JobRoleWithNames[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type JobRoleWriteInput = {
   roleName: string;
   location: string;
@@ -109,24 +116,34 @@ export class JobRoleDaoImpl implements JobRoleDao {
           select: {
             capabilityName: true,
           },
-        },
-        band: {
-          select: {
-            bandName: true,
+          band: {
+            select: {
+              bandName: true,
+            },
+          },
+          status: {
+            select: {
+              statusName: true,
+            },
           },
         },
-        status: {
-          select: {
-            statusName: true,
-          },
-        },
-      },
-    })) as Array<JobRoleWithNames & { resposibilities?: string }>;
+      }),
+      prisma.jobRole.count({ where }),
+    ]);
 
-    return jobRoles.map((jobRole) => ({
+    const items = (
+      jobRoles as Array<JobRoleWithNames & { resposibilities?: string }>
+    ).map((jobRole) => ({
       ...jobRole,
       responsibilities: jobRole.responsibilities ?? jobRole.resposibilities,
     }));
+
+    return {
+      items,
+      total,
+      limit,
+      offset,
+    };
   }
 
   async findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null> {
