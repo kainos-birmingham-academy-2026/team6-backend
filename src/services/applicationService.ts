@@ -1,16 +1,24 @@
 import { type ApplicationDao, ApplicationDaoImpl } from "../dao/applicationDao";
 import { JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type { MyApplicationResponse } from "../models/ApplicationResponse";
+import { type AnalyticsService, analyticsService } from "./analyticsService";
 
 export type ApplyResponse = {
   applicationId: number;
   status: string;
 };
 
+// Maps DB application statuses to the GA4 event fired when an admin sets that status.
+const STATUS_EVENT_NAMES: Record<string, string> = {
+  rejected: "job_application_rejected",
+  accepted: "job_application_hired",
+};
+
 export class ApplicationService {
   constructor(
     private readonly applicationDao: ApplicationDao = new ApplicationDaoImpl(),
     private readonly jobRoleDao: JobRoleDaoImpl = new JobRoleDaoImpl(),
+    private readonly analytics: AnalyticsService = analyticsService,
   ) {}
 
   async applyForJobRole(
@@ -50,9 +58,55 @@ export class ApplicationService {
       cv: "CV submitted",
     });
 
+    await this.analytics.trackEvent(`user-${userId}`, {
+      name: "job_application_created",
+      params: { applicationId: application.applicationId, jobRoleId },
+    });
+
     return {
       applicationId: application.applicationId,
       status: "in progress",
+    };
+  }
+
+  async updateApplicationStatus(
+    applicationId: number,
+    statusName: "rejected" | "accepted",
+  ): Promise<ApplyResponse> {
+    const existingApplication =
+      await this.applicationDao.findApplicationById(applicationId);
+
+    if (!existingApplication) {
+      throw new Error("Application not found");
+    }
+
+    const statusId =
+      await this.applicationDao.findApplicationStatusIdByName(statusName);
+
+    if (!statusId) {
+      throw new Error(`Application status '${statusName}' is not configured`);
+    }
+
+    const application = await this.applicationDao.updateApplicationStatus(
+      applicationId,
+      statusId,
+    );
+
+    if (!application) {
+      throw new Error("Application not found");
+    }
+
+    const eventName = STATUS_EVENT_NAMES[statusName];
+    if (eventName) {
+      await this.analytics.trackEvent(`user-${existingApplication.userId}`, {
+        name: eventName,
+        params: { applicationId },
+      });
+    }
+
+    return {
+      applicationId: application.applicationId,
+      status: statusName,
     };
   }
 

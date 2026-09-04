@@ -20,4 +20,10 @@ applicationRouter.get(
   controller.getMyApplications.bind(controller),
 );
 
+applicationRouter.patch(
+  "/:id/status",
+  authorizeRoles(UserRole.Admin),
+  controller.updateApplicationStatus.bind(controller),
+);
+
 export default applicationRouter;

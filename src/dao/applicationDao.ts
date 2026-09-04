@@ -38,6 +38,10 @@ export interface ApplicationDao {
     userId: number,
     jobRoleId: number,
   ): Promise<ApplicationResponse | null>;
+  updateApplicationStatus(
+    applicationId: number,
+    applicationStatusId: number,
+  ): Promise<ApplicationResponse | null>;
 }
 
 export class ApplicationDaoImpl implements ApplicationDao {
@@ -116,6 +120,27 @@ export class ApplicationDaoImpl implements ApplicationDao {
     });
 
     return application;
+  }
+
+  async updateApplicationStatus(
+    applicationId: number,
+    applicationStatusId: number,
+  ): Promise<ApplicationResponse | null> {
+    try {
+      return await prisma.applications.update({
+        where: { applicationId },
+        data: { applicationStatusId },
+        select: {
+          applicationId: true,
+          userId: true,
+          jobRoleId: true,
+          applicationStatusId: true,
+          cv: true,
+        },
+      });
+    } catch {
+      return null;
+    }
   }
 
   async findApplicationsByUserId(
