@@ -120,7 +120,7 @@ describe("integration endpoints", () => {
           location: openJobRole.location,
           capabilityName: "Engineering",
           bandName: "Associate",
-          statusName: "open",
+          statusName: "Open",
           closingDate: openJobRole.closingDate.toISOString(),
         },
       ],
