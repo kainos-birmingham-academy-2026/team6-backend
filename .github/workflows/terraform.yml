@@ -5,6 +5,11 @@ on:
   pull_request:
     branches: [main]
 
+# Shares a group with ci.yml so the two workflows never contend for the same state lock.
+concurrency:
+  group: team6-backend-dev-terraform
+  cancel-in-progress: false
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
@@ -32,8 +37,8 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=environments/dev.tfvars -input=false
+        run: terraform plan -var-file=environments/dev.tfvars -input=false -lock-timeout=5m
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -var-file=environments/dev.tfvars -input=false
+        run: terraform apply -auto-approve -var-file=environments/dev.tfvars -input=false -lock-timeout=5m
