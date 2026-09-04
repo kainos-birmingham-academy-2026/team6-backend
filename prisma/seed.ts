@@ -55,10 +55,10 @@ async function main() {
   // Create Status
   console.log("✅ Creating statuses...");
   const openStatus = await prisma.status.create({
-    data: { statusName: "Open" },
+    data: { statusName: "open" },
   });
   const closedStatus = await prisma.status.create({
-    data: { statusName: "Closed" },
+    data: { statusName: "closed" },
   });
 
   // Create Job Roles
