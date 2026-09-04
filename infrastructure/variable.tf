@@ -28,9 +28,10 @@ variable "backend_image_tag" {
   default     = "latest"
 }
 
-variable "frontend_image_tag" {
-  description = "Image tag for the frontend container app."
+# Unique per CI run. Changing it forces a new revision, which makes the frontend re-pull its :latest image.
+variable "deploy_id" {
+  description = "Identifier for the deployment run, used as the container app revision suffix."
   type        = string
-  default     = "latest"
+  default     = "init"
 }
 
