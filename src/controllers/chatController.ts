@@ -22,11 +22,9 @@ export class ChatController {
     } catch (error) {
       // Logged server-side only: provider errors can expose endpoint and request details.
       console.error("Chat request failed", error);
-      return res
-        .status(503)
-        .json({
-          error: "The assistant is unavailable right now. Please try again.",
-        });
+      return res.status(503).json({
+        error: "The assistant is unavailable right now. Please try again.",
+      });
     }
   }
 }
