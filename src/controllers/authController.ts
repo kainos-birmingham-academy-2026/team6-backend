@@ -21,6 +21,16 @@ const isValidPassword = (password: string): boolean => {
   return passwordRegex.test(password);
 };
 
+const createAuthToken = (userId: number, role: string): string => {
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
+  return jwt.sign({ userId, role }, jwtSecret, { expiresIn: "1h" });
+};
+
 // =============================
 // REGISTER
 // =============================
@@ -94,6 +104,7 @@ export const register = async (req: Request, res: Response) => {
 
     return res.status(201).json({
       message: "User registered successfully",
+      token: createAuthToken(user.userId, user.userRole),
       user: {
         id: user.userId,
         email: user.email,
@@ -162,24 +173,7 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-    // Get JWT secret from .env
-    const jwtSecret = process.env.JWT_SECRET;
-
-    if (!jwtSecret) {
-      throw new Error("JWT_SECRET is not configured");
-    }
-
-    // Create login token
-    const token = jwt.sign(
-      {
-        userId: user.userId,
-        role: user.userRole,
-      },
-      jwtSecret,
-      {
-        expiresIn: "1h",
-      },
-    );
+    const token = createAuthToken(user.userId, user.userRole);
 
     return res.status(200).json({
       message: "Login successful",

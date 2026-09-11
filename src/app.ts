@@ -3,6 +3,7 @@ import applicationRouter from "./routes/applicationRouter";
 import authRouter from "./routes/authRouter";
 import bandRouter from "./routes/bandRouter";
 import capabilityRouter from "./routes/capabilityRouter";
+import chatRouter from "./routes/chatRouter";
 import jobRoleRouter from "./routes/jobRoleRouter";
 
 export function createApp() {
@@ -19,6 +20,7 @@ export function createApp() {
   app.use("/bands", bandRouter);
   app.use("/auth", authRouter);
   app.use("/applications", applicationRouter);
+  app.use("/chat", chatRouter);
 
   return app;
 }
