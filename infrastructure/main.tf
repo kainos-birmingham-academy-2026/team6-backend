@@ -102,12 +102,13 @@ resource "azurerm_container_app" "backend" {
   }
 
   template {
-    min_replicas = 1
-    max_replicas = 1
+    min_replicas    = 1
+    max_replicas    = 1
+    revision_suffix = var.deploy_id
 
     container {
       name   = "backend"
-      image  = "acraiacademy26.azurecr.io/team6-backend:latest"
+      image  = "acraiacademy26.azurecr.io/team6-backend:${var.backend_image_tag}"
       cpu    = 0.25
       memory = "0.5Gi"
 
@@ -163,8 +164,9 @@ resource "azurerm_container_app" "frontend" {
   }
 
   template {
-    min_replicas = 1
-    max_replicas = 1
+    min_replicas    = 1
+    max_replicas    = 1
+    revision_suffix = var.deploy_id
 
     container {
       name   = "frontend"

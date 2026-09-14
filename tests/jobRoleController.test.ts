@@ -46,7 +46,9 @@ const validJobRoleBody = {
   closingDate: "2026-12-31",
 };
 
-const mockRequest = {} as Request;
+const mockRequest = {
+  query: {},
+} as unknown as Request;
 
 const mockPageResponse = {
   items: mockJobRoles,
@@ -72,12 +74,16 @@ describe("JobRoleController", () => {
   beforeEach(() => {
     jobRoleService = {
       findAllJobRoles: vi.fn(),
+      findJobRolesWithFilters: vi.fn(),
       getJobRoleDetailById: vi.fn(),
       createJobRole: vi.fn(),
       updateJobRole: vi.fn(),
       deleteJobRole: vi.fn(),
     } as unknown as JobRoleService;
-    controller = new JobRoleController(jobRoleService);
+    const applicationService = {
+      applyForJobRole: vi.fn(),
+    } as any;
+    controller = new JobRoleController(jobRoleService, applicationService);
   });
 
   describe("getAllJobRoles", () => {

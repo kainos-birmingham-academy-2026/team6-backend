@@ -61,6 +61,13 @@ export type JobRoleWriteInput = {
   numberOfOpenPositions?: number;
 };
 
+export type JobRoleFilters = {
+  search?: string;
+  capabilities?: number[];
+  bands?: number[];
+  locations?: string[];
+};
+
 export interface JobRoleDao {
   findAllJobRoles(
     limit: number,
@@ -68,6 +75,7 @@ export interface JobRoleDao {
     sortBy?: SortableJobRoleColumn,
     sortOrder?: SortOrder,
   ): Promise<JobRolePage>;
+  findJobRolesWithFilters(filters: JobRoleFilters): Promise<JobRoleWithNames[]>;
   findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null>;
   findStatusIdByName(statusName: string): Promise<number | null>;
   createJobRole(
@@ -154,6 +162,83 @@ export class JobRoleDaoImpl implements JobRoleDao {
       limit,
       offset,
     };
+  }
+
+  async findJobRolesWithFilters(
+    filters: JobRoleFilters,
+  ): Promise<JobRoleWithNames[]> {
+    const whereConditions: Record<string, unknown> = {
+      status: {
+        is: {
+          statusName: Status.Open,
+        },
+      },
+    };
+
+    // Text search - search in role name and location
+    if (filters.search) {
+      whereConditions.OR = [
+        {
+          roleName: {
+            contains: filters.search,
+            mode: "insensitive",
+          },
+        },
+        {
+          location: {
+            contains: filters.search,
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
+
+    // Filter by capabilities
+    if (filters.capabilities && filters.capabilities.length > 0) {
+      whereConditions.capabilityId = {
+        in: filters.capabilities,
+      };
+    }
+
+    // Filter by bands
+    if (filters.bands && filters.bands.length > 0) {
+      whereConditions.bandId = {
+        in: filters.bands,
+      };
+    }
+
+    // Filter by locations
+    if (filters.locations && filters.locations.length > 0) {
+      whereConditions.location = {
+        in: filters.locations,
+      };
+    }
+
+    const jobRoles = (await prisma.jobRole.findMany({
+      where: whereConditions,
+      include: {
+        capability: {
+          select: {
+            capabilityName: true,
+          },
+        },
+        band: {
+          select: {
+            bandName: true,
+          },
+        },
+        status: {
+          select: {
+            statusName: true,
+          },
+        },
+      },
+    })) as Array<JobRoleWithNames & { resposibilities?: string }>;
+
+    return jobRoles.map((jobRole) => ({
+      ...jobRole,
+      responsibilities: jobRole.responsibilities ?? jobRole.resposibilities,
+    }));
   }
 
   async findJobRoleById(jobRoleId: number): Promise<JobRoleWithNames | null> {
