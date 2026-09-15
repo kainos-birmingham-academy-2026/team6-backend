@@ -30,8 +30,10 @@
     "@prisma/client": "^6.19.3",
     "argon2": "^0.45.1",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
+    "openai": "^7.15.0",
     "zod": "^4.4.3"
   },
   "prisma": {
