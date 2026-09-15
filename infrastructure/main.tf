@@ -90,6 +90,11 @@ resource "azurerm_container_app" "backend" {
     identity            = azurerm_user_assigned_identity.container_apps.id
   }
 
+  secret {
+    name  = "azure-openai-api-key"
+    value = var.azure_openai_api_key
+  }
+
   ingress {
     external_enabled = false
     target_port      = 3000
@@ -125,6 +130,26 @@ resource "azurerm_container_app" "backend" {
       env {
         name        = "DATABASE_URL"
         secret_name = "database-url-ref"
+      }
+
+      env {
+        name  = "AZURE_OPENAI_ENDPOINT"
+        value = "https://team6-chatbot.openai.azure.com/"
+      }
+
+      env {
+        name  = "AZURE_OPENAI_DEPLOYMENT"
+        value = "gpt-4.1-mini"
+      }
+
+      env {
+        name  = "AZURE_OPENAI_API_VERSION"
+        value = "2024-10-21"
+      }
+
+      env {
+        name        = "AZURE_OPENAI_API_KEY"
+        secret_name = "azure-openai-api-key"
       }
     }
   }
@@ -181,7 +206,7 @@ resource "azurerm_container_app" "frontend" {
 
       env {
         name  = "API_BASE_URL"
-        value = "https://${azurerm_container_app.backend.latest_revision_fqdn}"
+        value = "https://${azurerm_container_app.backend.ingress[0].fqdn}"
       }
     }
   }
