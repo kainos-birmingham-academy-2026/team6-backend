@@ -18,9 +18,12 @@ describe("JobRoleMatcherService", () => {
       { questionId: 2, agreement: -1 },
     ]);
 
-    expect(scores[0]).toEqual({ capabilityName: "Engineering", score: 2 });
+    expect(scores[0]).toEqual({
+      capabilityName: "Backend Development",
+      score: 2,
+    });
     expect(scores[1]).toEqual({
-      capabilityName: "Business Analysis",
+      capabilityName: "Data Science",
       score: -1,
     });
   });
@@ -31,7 +34,9 @@ describe("JobRoleMatcherService", () => {
       { questionId: 1, agreement: 1 },
     ]);
 
-    expect(scores).toEqual([{ capabilityName: "Engineering", score: 2 }]);
+    expect(scores).toEqual([
+      { capabilityName: "Backend Development", score: 2 },
+    ]);
   });
 
   it("throws for an unknown questionId", () => {
@@ -48,7 +53,10 @@ describe("JobRoleMatcherService", () => {
     ]);
 
     const capabilityNames = top.map((match) => match.capabilityName).sort();
-    expect(capabilityNames).toEqual(["Engineering", "Product Management"]);
+    expect(capabilityNames).toEqual([
+      "Backend Development",
+      "Frontend Development",
+    ]);
   });
 
   it("falls back to top N when there is no tie", () => {
@@ -62,8 +70,8 @@ describe("JobRoleMatcherService", () => {
     );
 
     expect(top).toEqual([
-      { capabilityName: "Engineering", score: 2 },
-      { capabilityName: "Business Analysis", score: 1 },
+      { capabilityName: "Backend Development", score: 2 },
+      { capabilityName: "Data Science", score: 1 },
     ]);
   });
 

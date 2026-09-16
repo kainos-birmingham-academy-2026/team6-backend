@@ -5,32 +5,32 @@ import type {
 } from "../models/jobRoleMatcherModels";
 
 // Each question maps directly to one capability, matching the real
-// capabilities seeded in the database (see prisma/seed.sql).
+// capabilities in the database.
 export const matcherQuestions: MatcherQuestion[] = [
   {
     questionId: 1,
-    text: "I enjoy building and shipping software",
-    capabilityName: "Engineering",
+    text: "I enjoy building scalable backend APIs, databases, and server-side systems",
+    capabilityName: "Backend Development",
   },
   {
     questionId: 2,
-    text: "I like bridging business needs and technical solutions",
-    capabilityName: "Business Analysis",
+    text: "I like analyzing complex data, discovering insights, and working with data models",
+    capabilityName: "Data Science",
   },
   {
     questionId: 3,
-    text: "I enjoy shaping product direction and roadmaps",
-    capabilityName: "Product Management",
+    text: "I love creating interactive, responsive user interfaces and web applications",
+    capabilityName: "Frontend Development",
   },
   {
     questionId: 4,
-    text: "I care about how things look and feel to use",
-    capabilityName: "Design",
+    text: "I enjoy cloud infrastructure, CI/CD automation, and deployment pipelines",
+    capabilityName: "DevOps",
   },
   {
     questionId: 5,
-    text: "I like finding what's broken before customers do",
-    capabilityName: "Quality Assurance",
+    text: "I like designing test strategies, finding bugs, and ensuring high software quality",
+    capabilityName: "QA Testing",
   },
 ];
 
