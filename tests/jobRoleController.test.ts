@@ -70,6 +70,10 @@ const mockResponse = () => {
 describe("JobRoleController", () => {
   let controller: JobRoleController;
   let jobRoleService: JobRoleService;
+  let applicationService: {
+    applyForJobRole: ReturnType<typeof vi.fn>;
+    getApplicationsByJobRoleId: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     jobRoleService = {
@@ -80,10 +84,14 @@ describe("JobRoleController", () => {
       updateJobRole: vi.fn(),
       deleteJobRole: vi.fn(),
     } as unknown as JobRoleService;
-    const applicationService = {
+    applicationService = {
       applyForJobRole: vi.fn(),
-    } as any;
-    controller = new JobRoleController(jobRoleService, applicationService);
+      getApplicationsByJobRoleId: vi.fn(),
+    };
+    controller = new JobRoleController(
+      jobRoleService,
+      applicationService as unknown as any,
+    );
   });
 
   describe("getAllJobRoles", () => {
@@ -323,6 +331,56 @@ describe("JobRoleController", () => {
 
       expect(jobRoleService.deleteJobRole).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(400);
+    });
+  });
+
+  describe("getApplicationsByJobRoleId", () => {
+    it("should return 200 with applications for a valid job role", async () => {
+      const mockApplications = [
+        {
+          applicationId: 1,
+          userId: 1,
+          email: "test@example.com",
+          applicationStatusName: "in progress",
+          cv: "CV",
+        },
+      ];
+      vi.mocked(
+        applicationService.getApplicationsByJobRoleId,
+      ).mockResolvedValue(mockApplications);
+
+      const req = { params: { id: "1" } } as unknown as Request;
+      const res = mockResponse();
+
+      await controller.getApplicationsByJobRoleId(req, res);
+
+      expect(
+        applicationService.getApplicationsByJobRoleId,
+      ).toHaveBeenCalledWith(1);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(mockApplications);
+    });
+
+    it("should return 400 for an invalid id", async () => {
+      const req = { params: { id: "abc" } } as unknown as Request;
+      const res = mockResponse();
+
+      await controller.getApplicationsByJobRoleId(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it("should return 404 when the job role is not found", async () => {
+      vi.mocked(
+        applicationService.getApplicationsByJobRoleId,
+      ).mockRejectedValue(new Error("Job role not found"));
+
+      const req = { params: { id: "999" } } as unknown as Request;
+      const res = mockResponse();
+
+      await controller.getApplicationsByJobRoleId(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
     });
   });
 });

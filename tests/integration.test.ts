@@ -8,8 +8,21 @@ const prismaMock = vi.hoisted(() => ({
   },
   jobRole: {
     findMany: vi.fn(),
+    findUnique: vi.fn(),
     count: vi.fn(),
+    update: vi.fn(),
   },
+  applications: {
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+  },
+  applicationStatus: {
+    findFirst: vi.fn(),
+    create: vi.fn(),
+  },
+  $transaction: vi.fn(),
 }));
 
 vi.mock("../src/prismaClient", () => ({
@@ -165,6 +178,181 @@ describe("integration endpoints", () => {
     expect(response.status).toBe(401);
     expect(response.body).toEqual({
       error: "Authentication token is required",
+    });
+  });
+
+  it("allows admin to view applications for a role and forbids regular users", async () => {
+    const adminUser = {
+      userId: 2,
+      email: "admin@example.com",
+      userRole: "admin",
+    };
+    const passwordHash = await argon2.hash("AdminPassword!123");
+    prismaMock.user.findUnique.mockResolvedValue({
+      ...adminUser,
+      password: passwordHash,
+    });
+    prismaMock.jobRole.findUnique.mockResolvedValue(openJobRole);
+    prismaMock.applications.findMany.mockResolvedValue([
+      {
+        applicationId: 101,
+        userId: 1,
+        jobRoleId: 10,
+        applicationStatusId: 1,
+        cv: "my_cv.pdf",
+        user: { userId: 1, email: "applicant@example.com", userRole: "user" },
+        applicationStatus: {
+          applicationStatusId: 1,
+          applicationStatusName: "in progress",
+        },
+      },
+    ]);
+
+    const adminLogin = await request(app).post("/auth/login").send({
+      email: adminUser.email,
+      password: "AdminPassword!123",
+    });
+
+    const adminResponse = await request(app)
+      .get("/job-roles/10/applications")
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+
+    expect(adminResponse.status).toBe(200);
+    expect(adminResponse.body).toEqual([
+      {
+        applicationId: 101,
+        userId: 1,
+        email: "applicant@example.com",
+        applicationStatusName: "in progress",
+        cv: "my_cv.pdf",
+      },
+    ]);
+
+    // Regular user attempt
+    const userPassHash = await argon2.hash("Password!123");
+    prismaMock.user.findUnique.mockResolvedValue({
+      ...testUser,
+      password: userPassHash,
+    });
+    const userLogin = await request(app).post("/auth/login").send({
+      email: testUser.email,
+      password: "Password!123",
+    });
+
+    const userResponse = await request(app)
+      .get("/job-roles/10/applications")
+      .set("Authorization", `Bearer ${userLogin.body.token}`);
+
+    expect(userResponse.status).toBe(403);
+  });
+
+  it("allows admin to hire an applicant", async () => {
+    const adminUser = {
+      userId: 2,
+      email: "admin@example.com",
+      userRole: "admin",
+    };
+    const passwordHash = await argon2.hash("AdminPassword!123");
+    prismaMock.user.findUnique.mockResolvedValue({
+      ...adminUser,
+      password: passwordHash,
+    });
+
+    prismaMock.applications.findUnique.mockResolvedValue({
+      applicationId: 101,
+      userId: 1,
+      jobRoleId: 10,
+      applicationStatusId: 1,
+      cv: "my_cv.pdf",
+      applicationStatus: {
+        applicationStatusId: 1,
+        applicationStatusName: "in progress",
+      },
+      jobRole: { jobRoleId: 10, numberOfOpenPositions: 2, statusId: 1 },
+    });
+    prismaMock.applicationStatus.findFirst.mockResolvedValue({
+      applicationStatusId: 2,
+      applicationStatusName: "hired",
+    });
+    prismaMock.$transaction.mockResolvedValue([
+      {
+        applicationId: 101,
+        userId: 1,
+        jobRoleId: 10,
+        applicationStatusId: 2,
+        cv: "my_cv.pdf",
+      },
+      {
+        jobRoleId: 10,
+        numberOfOpenPositions: 1,
+      },
+    ]);
+
+    const adminLogin = await request(app).post("/auth/login").send({
+      email: adminUser.email,
+      password: "AdminPassword!123",
+    });
+
+    const hireResponse = await request(app)
+      .post("/applications/101/hire")
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+
+    expect(hireResponse.status).toBe(200);
+    expect(hireResponse.body).toEqual({
+      applicationId: 101,
+      status: "hired",
+    });
+  });
+
+  it("allows admin to reject an applicant", async () => {
+    const adminUser = {
+      userId: 2,
+      email: "admin@example.com",
+      userRole: "admin",
+    };
+    const passwordHash = await argon2.hash("AdminPassword!123");
+    prismaMock.user.findUnique.mockResolvedValue({
+      ...adminUser,
+      password: passwordHash,
+    });
+
+    prismaMock.applications.findUnique.mockResolvedValue({
+      applicationId: 101,
+      userId: 1,
+      jobRoleId: 10,
+      applicationStatusId: 1,
+      cv: "my_cv.pdf",
+      applicationStatus: {
+        applicationStatusId: 1,
+        applicationStatusName: "in progress",
+      },
+      jobRole: { jobRoleId: 10, numberOfOpenPositions: 2, statusId: 1 },
+    });
+    prismaMock.applicationStatus.findFirst.mockResolvedValue({
+      applicationStatusId: 3,
+      applicationStatusName: "rejected",
+    });
+    prismaMock.applications.update.mockResolvedValue({
+      applicationId: 101,
+      userId: 1,
+      jobRoleId: 10,
+      applicationStatusId: 3,
+      cv: "my_cv.pdf",
+    });
+
+    const adminLogin = await request(app).post("/auth/login").send({
+      email: adminUser.email,
+      password: "AdminPassword!123",
+    });
+
+    const rejectResponse = await request(app)
+      .post("/applications/101/reject")
+      .set("Authorization", `Bearer ${adminLogin.body.token}`);
+
+    expect(rejectResponse.status).toBe(200);
+    expect(rejectResponse.body).toEqual({
+      applicationId: 101,
+      status: "rejected",
     });
   });
 });
