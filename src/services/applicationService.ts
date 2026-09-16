@@ -1,6 +1,7 @@
 import { type ApplicationDao, ApplicationDaoImpl } from "../dao/applicationDao";
 import { JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type { MyApplicationResponse } from "../models/ApplicationResponse";
+import { BlobStorageService, type CvUploadInput } from "./blobStorageService";
 
 export type ApplyResponse = {
   applicationId: number;
@@ -11,11 +12,13 @@ export class ApplicationService {
   constructor(
     private readonly applicationDao: ApplicationDao = new ApplicationDaoImpl(),
     private readonly jobRoleDao: JobRoleDaoImpl = new JobRoleDaoImpl(),
+    private readonly blobStorageService: BlobStorageService = new BlobStorageService(),
   ) {}
 
   async applyForJobRole(
     userId: number,
     jobRoleId: number,
+    cvFile: CvUploadInput,
   ): Promise<ApplyResponse> {
     // Verify job role exists
     const jobRole = await this.jobRoleDao.findJobRoleById(jobRoleId);
@@ -42,12 +45,20 @@ export class ApplicationService {
       throw new Error("Application status 'in progress' is not configured");
     }
 
-    // Create the application
+    const cvBlobPath = await this.blobStorageService.uploadCv(
+      userId,
+      jobRoleId,
+      cvFile,
+    );
+
+    // Create the application; the CV is scanned for malware asynchronously by
+    // Defender for Storage once uploaded, so it starts out in "pending" status.
     const application = await this.applicationDao.createApplication({
       userId,
       jobRoleId,
       applicationStatusId: statusId,
-      cv: "CV submitted",
+      cvBlobPath,
+      cvScanStatus: "pending",
     });
 
     return {

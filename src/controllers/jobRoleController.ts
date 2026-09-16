@@ -8,6 +8,12 @@ import {
   updateJobRoleSchema,
 } from "../validation/jobRoleValidation";
 
+const ALLOWED_CV_MIME_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
 export class JobRoleController {
   constructor(
     private readonly jobRoleService: JobRoleService,
@@ -238,6 +244,12 @@ export class JobRoleController {
       return res.status(400).json({ error: "CV file is required" });
     }
 
+    if (!ALLOWED_CV_MIME_TYPES.has(req.file.mimetype)) {
+      return res
+        .status(400)
+        .json({ error: "CV must be a PDF or Word document" });
+    }
+
     try {
       if (!this.applicationService) {
         return res
@@ -248,6 +260,11 @@ export class JobRoleController {
       const result = await this.applicationService.applyForJobRole(
         req.user.userId,
         jobRoleId,
+        {
+          buffer: req.file.buffer,
+          originalName: req.file.originalname,
+          mimeType: req.file.mimetype,
+        },
       );
 
       return res.status(201).json(result);

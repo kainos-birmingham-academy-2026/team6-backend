@@ -4,7 +4,8 @@ export type ApplicationCreateInput = {
   userId: number;
   jobRoleId: number;
   applicationStatusId: number;
-  cv: string;
+  cvBlobPath: string;
+  cvScanStatus: string;
 };
 
 export type ApplicationResponse = {
@@ -12,7 +13,8 @@ export type ApplicationResponse = {
   userId: number;
   jobRoleId: number;
   applicationStatusId: number;
-  cv: string;
+  cvBlobPath: string;
+  cvScanStatus: string;
 };
 
 export type ApplicationWithJobRole = ApplicationResponse & {
@@ -49,14 +51,16 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: data.userId,
         jobRoleId: data.jobRoleId,
         applicationStatusId: data.applicationStatusId,
-        cv: data.cv,
+        cvBlobPath: data.cvBlobPath,
+        cvScanStatus: data.cvScanStatus,
       },
       select: {
         applicationId: true,
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cv: true,
+        cvBlobPath: true,
+        cvScanStatus: true,
       },
     });
 
@@ -75,7 +79,8 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cv: true,
+        cvBlobPath: true,
+        cvScanStatus: true,
       },
     });
 
@@ -111,7 +116,8 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cv: true,
+        cvBlobPath: true,
+        cvScanStatus: true,
       },
     });
 
@@ -129,7 +135,8 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cv: true,
+        cvBlobPath: true,
+        cvScanStatus: true,
         applicationStatus: {
           select: { applicationStatusName: true },
         },
