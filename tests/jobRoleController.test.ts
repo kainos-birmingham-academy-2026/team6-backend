@@ -85,9 +85,15 @@ describe("JobRoleController", () => {
       updateJobRole: vi.fn(),
       deleteJobRole: vi.fn(),
     } as unknown as JobRoleService;
-    const applicationService: Pick<ApplicationService, "applyForJobRole"> = {
+
+    applicationService = {
       applyForJobRole: vi.fn(),
+      getApplicationsByJobRoleId: vi.fn(),
+    } as {
+      applyForJobRole: ReturnType<typeof vi.fn>;
+      getApplicationsByJobRoleId: ReturnType<typeof vi.fn>;
     };
+
     controller = new JobRoleController(jobRoleService, applicationService);
   });
 
