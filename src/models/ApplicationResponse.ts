@@ -8,3 +8,11 @@ export type MyApplicationResponse = {
   bandName: string;
   closingDate: Date;
 };
+
+export type JobRoleApplicationResponse = {
+  applicationId: number;
+  userId: number;
+  email: string;
+  applicationStatusName: string;
+  cv: string;
+};

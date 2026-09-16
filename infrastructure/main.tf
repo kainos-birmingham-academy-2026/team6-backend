@@ -38,6 +38,41 @@ resource "azurerm_user_assigned_identity" "container_apps" {
   resource_group_name = module.resource_group.name
 }
 
+resource "azurerm_storage_account" "cv_storage" {
+  name                            = "team6cvstorage"
+  resource_group_name             = module.resource_group.name
+  location                        = var.location
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS"
+  min_tls_version                 = "TLS1_2"
+  public_network_access_enabled   = true
+  allow_nested_items_to_be_public = false
+
+  blob_properties {
+    delete_retention_policy {
+      days = 7
+    }
+
+    container_delete_retention_policy {
+      days = 7
+    }
+  }
+}
+
+resource "azurerm_storage_container" "cvs" {
+  name                  = "cvs"
+  storage_account_id    = azurerm_storage_account.cv_storage.id
+  container_access_type = "private"
+}
+
+resource "azurerm_security_center_storage_defender" "cv_storage" {
+  storage_account_id                          = azurerm_storage_account.cv_storage.id
+  malware_scanning_on_upload_enabled          = true
+  malware_scanning_on_upload_cap_gb_per_month = 500
+  override_subscription_settings_enabled      = true
+  sensitive_data_discovery_enabled            = true
+}
+
 module "resource_group" {
   source   = "./modules/resource-group"
   name     = "rg-${var.project_name}-${var.environment}"
@@ -95,6 +130,12 @@ resource "azurerm_container_app" "backend" {
     value = var.azure_openai_api_key
   }
 
+  secret {
+    name                = "cv-storage-connection-string"
+    key_vault_secret_id = "${azurerm_key_vault.main.vault_uri}secrets/cv-storage-connection-string"
+    identity            = azurerm_user_assigned_identity.container_apps.id
+  }
+
   ingress {
     external_enabled = false
     target_port      = 3000
@@ -150,6 +191,26 @@ resource "azurerm_container_app" "backend" {
       env {
         name        = "AZURE_OPENAI_API_KEY"
         secret_name = "azure-openai-api-key"
+      }
+
+      env {
+        name  = "CV_STORAGE_CONTAINER"
+        value = "cvs"
+      }
+
+      env {
+        name        = "CV_STORAGE_CONNECTION_STRING"
+        secret_name = "cv-storage-connection-string"
+      }
+
+      env {
+        name  = "CV_STORAGE_ACCOUNT_URL"
+        value = azurerm_storage_account.cv_storage.primary_blob_endpoint
+      }
+
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = azurerm_user_assigned_identity.container_apps.client_id
       }
     }
   }

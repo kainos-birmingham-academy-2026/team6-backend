@@ -11,7 +11,10 @@ import { JobRoleService } from "../services/jobRoleService";
 
 const jobRoleRouter = Router();
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 const jobRoleService = new JobRoleService();
 const applicationService = new ApplicationService();
 const controller = new JobRoleController(jobRoleService, applicationService);
@@ -56,6 +59,12 @@ jobRoleRouter.post(
   authorizeRoles(UserRole.Admin, UserRole.User),
   upload.single("cv"),
   controller.applyForJobRole.bind(controller),
+);
+
+jobRoleRouter.get(
+  "/:id/applications",
+  authorizeRoles(UserRole.Admin),
+  controller.getApplicationsByJobRoleId.bind(controller),
 );
 
 export default jobRoleRouter;
