@@ -1,6 +1,7 @@
 import { type ApplicationDao, ApplicationDaoImpl } from "../dao/applicationDao";
 import { type JobRoleDao, JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type {
+  AdminApplicationResponse,
   JobRoleApplicationResponse,
   MyApplicationResponse,
 } from "../models/ApplicationResponse";
@@ -107,6 +108,20 @@ export class ApplicationService {
       applicationStatusName:
         application.applicationStatus.applicationStatusName,
       cv: application.cv,
+    }));
+  }
+
+  async getAllApplications(): Promise<AdminApplicationResponse[]> {
+    const applications = await this.applicationDao.findAllApplications();
+
+    return applications.map((application) => ({
+      applicationId: application.applicationId,
+      userId: application.userId,
+      email: application.user?.email ?? "",
+      applicationStatusName:
+        application.applicationStatus.applicationStatusName,
+      jobRoleId: application.jobRole.jobRoleId,
+      roleName: application.jobRole.roleName,
     }));
   }
 

@@ -16,3 +16,12 @@ export type JobRoleApplicationResponse = {
   applicationStatusName: string;
   cv: string;
 };
+
+export type AdminApplicationResponse = {
+  applicationId: number;
+  userId: number;
+  email: string;
+  applicationStatusName: string;
+  jobRoleId: number;
+  roleName: string;
+};

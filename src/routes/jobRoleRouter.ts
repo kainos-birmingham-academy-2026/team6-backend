@@ -54,9 +54,10 @@ jobRoleRouter.delete(
   controller.deleteJobRole.bind(controller),
 );
 
+// Only applicants can apply for job roles; admins manage applications instead.
 jobRoleRouter.post(
   "/:id/apply",
-  authorizeRoles(UserRole.Admin, UserRole.User),
+  authorizeRoles(UserRole.User),
   upload.single("cv"),
   controller.applyForJobRole.bind(controller),
 );

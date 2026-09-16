@@ -51,6 +51,12 @@ export type ApplicationWithRoleDetails = ApplicationResponse & {
   };
 };
 
+export type ApplicationWithUserAndJobRole = ApplicationResponse & {
+  user: { email: string };
+  applicationStatus: { applicationStatusName: string };
+  jobRole: { jobRoleId: number; roleName: string };
+};
+
 export interface ApplicationDao {
   createApplication(data: ApplicationCreateInput): Promise<ApplicationResponse>;
   findApplicationById(
@@ -61,6 +67,7 @@ export interface ApplicationDao {
   findApplicationsByJobRoleId(
     jobRoleId: number,
   ): Promise<ApplicationWithUserAndStatus[]>;
+  findAllApplications(): Promise<ApplicationWithUserAndJobRole[]>;
   findApplicationWithJobRoleById(
     applicationId: number,
   ): Promise<ApplicationWithRoleDetails | null>;
@@ -239,6 +246,28 @@ export class ApplicationDaoImpl implements ApplicationDao {
             applicationStatusId: true,
             applicationStatusName: true,
           },
+        },
+      },
+    });
+  }
+
+  async findAllApplications(): Promise<ApplicationWithUserAndJobRole[]> {
+    return prisma.applications.findMany({
+      orderBy: { applicationId: "desc" },
+      select: {
+        applicationId: true,
+        userId: true,
+        jobRoleId: true,
+        applicationStatusId: true,
+        cv: true,
+        user: {
+          select: { email: true },
+        },
+        applicationStatus: {
+          select: { applicationStatusName: true },
+        },
+        jobRole: {
+          select: { jobRoleId: true, roleName: true },
         },
       },
     });
