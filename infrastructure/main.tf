@@ -38,9 +38,6 @@ resource "azurerm_user_assigned_identity" "container_apps" {
   resource_group_name = module.resource_group.name
 }
 
-# NOTE: team6cvstorage / the "cvs" container / the Defender for Storage plan were created
-# manually in the Portal. Run `terraform import` against these resources before the next
-# `terraform apply`, otherwise Terraform will try (and fail) to create duplicates.
 resource "azurerm_storage_account" "cv_storage" {
   name                            = "team6cvstorage"
   resource_group_name             = module.resource_group.name
@@ -66,12 +63,6 @@ resource "azurerm_storage_container" "cvs" {
   name                  = "cvs"
   storage_account_id    = azurerm_storage_account.cv_storage.id
   container_access_type = "private"
-}
-
-resource "azurerm_role_assignment" "cv_storage_backend_access" {
-  scope                = azurerm_storage_account.cv_storage.id
-  role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_user_assigned_identity.container_apps.principal_id
 }
 
 resource "azurerm_security_center_storage_defender" "cv_storage" {
