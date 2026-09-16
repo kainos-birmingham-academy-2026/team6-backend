@@ -72,7 +72,7 @@ describe("ApplicationService", () => {
         userId: 5,
         jobRoleId: 1,
         applicationStatusId: 1,
-        cvBlobPath: "5/1/generated-cv.pdf",
+        cv: "5/1/generated-cv.pdf",
         cvScanStatus: "pending",
       });
 
@@ -88,7 +88,7 @@ describe("ApplicationService", () => {
         userId: 5,
         jobRoleId: 1,
         applicationStatusId: 1,
-        cvBlobPath: "5/1/generated-cv.pdf",
+        cv: "5/1/generated-cv.pdf",
         cvScanStatus: "pending",
       });
     });
@@ -115,7 +115,7 @@ describe("ApplicationService", () => {
         userId: 5,
         jobRoleId: 1,
         applicationStatusId: 1,
-        cvBlobPath: "5/1/generated-cv.pdf",
+        cv: "5/1/generated-cv.pdf",
         cvScanStatus: "pending",
       });
 
@@ -134,7 +134,7 @@ describe("ApplicationService", () => {
           userId: 5,
           jobRoleId: 1,
           applicationStatusId: 1,
-          cvBlobPath: "5/1/generated-cv.pdf",
+          cv: "5/1/generated-cv.pdf",
           cvScanStatus: "pending",
           applicationStatus: { applicationStatusName: "in progress" },
           jobRole: {

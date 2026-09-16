@@ -1,13 +1,11 @@
 import { type ApplicationDao, ApplicationDaoImpl } from "../dao/applicationDao";
-import { JobRoleDaoImpl } from "../dao/jobRoleDao";
-import type { MyApplicationResponse } from "../models/ApplicationResponse";
-import { BlobStorageService, type CvUploadInput } from "./blobStorageService";
 import { type JobRoleDao, JobRoleDaoImpl } from "../dao/jobRoleDao";
 import type {
   JobRoleApplicationResponse,
   MyApplicationResponse,
 } from "../models/ApplicationResponse";
 import { ApplicationStatus } from "../models/applicationStatus";
+import { BlobStorageService, type CvUploadInput } from "./blobStorageService";
 
 export type ApplyResponse = {
   applicationId: number;
@@ -17,9 +15,8 @@ export type ApplyResponse = {
 export class ApplicationService {
   constructor(
     private readonly applicationDao: ApplicationDao = new ApplicationDaoImpl(),
-    private readonly jobRoleDao: JobRoleDaoImpl = new JobRoleDaoImpl(),
-    private readonly blobStorageService: BlobStorageService = new BlobStorageService(),
     private readonly jobRoleDao: JobRoleDao = new JobRoleDaoImpl(),
+    private readonly blobStorageService: BlobStorageService = new BlobStorageService(),
   ) {}
 
   async applyForJobRole(
@@ -65,7 +62,7 @@ export class ApplicationService {
       userId,
       jobRoleId,
       applicationStatusId: statusId,
-      cvBlobPath,
+      cv: cvBlobPath,
       cvScanStatus: "pending",
     });
 

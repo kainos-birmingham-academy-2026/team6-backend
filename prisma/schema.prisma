@@ -67,7 +67,7 @@ model Applications {
   userId              Int
   jobRoleId           Int
   applicationStatusId Int
-  cvBlobPath          String
+  cv                  String
   cvScanStatus        String @default("pending")
 
   user              User              @relation(fields: [userId], references: [userId])

@@ -4,7 +4,7 @@ export type ApplicationCreateInput = {
   userId: number;
   jobRoleId: number;
   applicationStatusId: number;
-  cvBlobPath: string;
+  cv: string;
   cvScanStatus: string;
 };
 
@@ -13,7 +13,7 @@ export type ApplicationResponse = {
   userId: number;
   jobRoleId: number;
   applicationStatusId: number;
-  cvBlobPath: string;
+  cv: string;
   cvScanStatus: string;
 };
 
@@ -90,7 +90,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: data.userId,
         jobRoleId: data.jobRoleId,
         applicationStatusId: data.applicationStatusId,
-        cvBlobPath: data.cvBlobPath,
+        cv: data.cv,
         cvScanStatus: data.cvScanStatus,
       },
       select: {
@@ -98,7 +98,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cvBlobPath: true,
+        cv: true,
         cvScanStatus: true,
       },
     });
@@ -118,7 +118,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cvBlobPath: true,
+        cv: true,
         cvScanStatus: true,
       },
     });
@@ -184,7 +184,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cvBlobPath: true,
+        cv: true,
         cvScanStatus: true,
       },
     });
@@ -203,7 +203,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         userId: true,
         jobRoleId: true,
         applicationStatusId: true,
-        cvBlobPath: true,
+        cv: true,
         cvScanStatus: true,
         applicationStatus: {
           select: { applicationStatusName: true },
@@ -234,6 +234,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         jobRoleId: true,
         applicationStatusId: true,
         cv: true,
+        cvScanStatus: true,
         user: {
           select: {
             userId: true,
@@ -262,6 +263,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         jobRoleId: true,
         applicationStatusId: true,
         cv: true,
+        cvScanStatus: true,
         applicationStatus: {
           select: {
             applicationStatusId: true,
@@ -294,6 +296,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
           jobRoleId: true,
           applicationStatusId: true,
           cv: true,
+          cvScanStatus: true,
         },
       }),
       prisma.jobRole.update({
@@ -322,6 +325,7 @@ export class ApplicationDaoImpl implements ApplicationDao {
         jobRoleId: true,
         applicationStatusId: true,
         cv: true,
+        cvScanStatus: true,
       },
     });
   }
