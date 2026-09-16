@@ -4,6 +4,7 @@ import authRouter from "./routes/authRouter";
 import bandRouter from "./routes/bandRouter";
 import capabilityRouter from "./routes/capabilityRouter";
 import chatRouter from "./routes/chatRouter";
+import jobRoleMatcherRouter from "./routes/jobRoleMatcherRouter";
 import jobRoleRouter from "./routes/jobRoleRouter";
 
 export function createApp() {
@@ -16,6 +17,7 @@ export function createApp() {
   });
 
   app.use("/job-roles", jobRoleRouter);
+  app.use("/job-role-matcher", jobRoleMatcherRouter);
   app.use("/capabilities", capabilityRouter);
   app.use("/bands", bandRouter);
   app.use("/auth", authRouter);
