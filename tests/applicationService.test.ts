@@ -2,6 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ApplicationDao } from "../src/dao/applicationDao";
 import type { JobRoleDaoImpl } from "../src/dao/jobRoleDao";
 import { ApplicationService } from "../src/services/applicationService";
+import type { BlobStorageService } from "../src/services/blobStorageService";
+
+const mockCvFile = {
+  buffer: Buffer.from("cv-content"),
+  originalName: "cv.pdf",
+  mimeType: "application/pdf",
+};
 
 const mockJobRole = {
   jobRoleId: 1,
@@ -16,6 +23,7 @@ const mockJobRole = {
 describe("ApplicationService", () => {
   let applicationDao: ApplicationDao;
   let jobRoleDao: JobRoleDaoImpl;
+  let blobStorageService: BlobStorageService;
   let service: ApplicationService;
 
   beforeEach(() => {
@@ -35,7 +43,15 @@ describe("ApplicationService", () => {
       findJobRoleById: vi.fn(),
     } as unknown as JobRoleDaoImpl;
 
-    service = new ApplicationService(applicationDao, jobRoleDao);
+    blobStorageService = {
+      uploadCv: vi.fn().mockResolvedValue("5/1/generated-cv.pdf"),
+    } as unknown as BlobStorageService;
+
+    service = new ApplicationService(
+      applicationDao,
+      jobRoleDao,
+      blobStorageService,
+    );
   });
 
   describe("applyForJobRole", () => {
@@ -56,24 +72,31 @@ describe("ApplicationService", () => {
         userId: 5,
         jobRoleId: 1,
         applicationStatusId: 1,
-        cv: "CV submitted",
+        cv: "5/1/generated-cv.pdf",
+        cvScanStatus: "pending",
       });
 
-      const result = await service.applyForJobRole(5, 1);
+      const result = await service.applyForJobRole(5, 1, mockCvFile);
 
       expect(result).toEqual({ applicationId: 10, status: "in progress" });
+      expect(blobStorageService.uploadCv).toHaveBeenCalledWith(
+        5,
+        1,
+        mockCvFile,
+      );
       expect(applicationDao.createApplication).toHaveBeenCalledWith({
         userId: 5,
         jobRoleId: 1,
         applicationStatusId: 1,
-        cv: "CV submitted",
+        cv: "5/1/generated-cv.pdf",
+        cvScanStatus: "pending",
       });
     });
 
     it("throws when the job role does not exist", async () => {
       vi.mocked(jobRoleDao.findJobRoleById).mockResolvedValue(null);
 
-      await expect(service.applyForJobRole(5, 1)).rejects.toThrow(
+      await expect(service.applyForJobRole(5, 1, mockCvFile)).rejects.toThrow(
         "Job role not found",
       );
       expect(applicationDao.createApplication).not.toHaveBeenCalled();
@@ -92,10 +115,11 @@ describe("ApplicationService", () => {
         userId: 5,
         jobRoleId: 1,
         applicationStatusId: 1,
-        cv: "CV submitted",
+        cv: "5/1/generated-cv.pdf",
+        cvScanStatus: "pending",
       });
 
-      await expect(service.applyForJobRole(5, 1)).rejects.toThrow(
+      await expect(service.applyForJobRole(5, 1, mockCvFile)).rejects.toThrow(
         "You have already applied for this job role",
       );
       expect(applicationDao.createApplication).not.toHaveBeenCalled();
@@ -110,7 +134,8 @@ describe("ApplicationService", () => {
           userId: 5,
           jobRoleId: 1,
           applicationStatusId: 1,
-          cv: "CV",
+          cv: "5/1/generated-cv.pdf",
+          cvScanStatus: "pending",
           applicationStatus: { applicationStatusName: "in progress" },
           jobRole: {
             jobRoleId: 1,
