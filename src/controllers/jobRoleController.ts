@@ -283,4 +283,24 @@ export class JobRoleController {
       return res.status(500).json({ error: "Failed to create application" });
     }
   }
+
+  async getApplicationsByJobRoleId(req: Request, res: Response) {
+    const jobRoleId = Number(req.params.id);
+
+    if (!Number.isInteger(jobRoleId) || jobRoleId <= 0) {
+      return res.status(400).json({ error: "Invalid job role id" });
+    }
+
+    try {
+      const applications =
+        await this.applicationService.getApplicationsByJobRoleId(jobRoleId);
+      return res.status(200).json(applications);
+    } catch (error) {
+      if (error instanceof Error && error.message === "Job role not found") {
+        return res.status(404).json({ error: "Job role not found" });
+      }
+
+      return res.status(500).json({ error: "Failed to fetch applications" });
+    }
+  }
 }

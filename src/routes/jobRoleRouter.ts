@@ -61,4 +61,10 @@ jobRoleRouter.post(
   controller.applyForJobRole.bind(controller),
 );
 
+jobRoleRouter.get(
+  "/:id/applications",
+  authorizeRoles(UserRole.Admin),
+  controller.getApplicationsByJobRoleId.bind(controller),
+);
+
 export default jobRoleRouter;
