@@ -130,6 +130,12 @@ resource "azurerm_container_app" "backend" {
     value = var.azure_openai_api_key
   }
 
+  secret {
+    name                = "cv-storage-connection-string"
+    key_vault_secret_id = "${azurerm_key_vault.main.vault_uri}secrets/cv-storage-connection-string"
+    identity            = azurerm_user_assigned_identity.container_apps.id
+  }
+
   ingress {
     external_enabled = false
     target_port      = 3000
@@ -190,6 +196,11 @@ resource "azurerm_container_app" "backend" {
       env {
         name  = "CV_STORAGE_CONTAINER"
         value = "cvs"
+      }
+
+      env {
+        name        = "CV_STORAGE_CONNECTION_STRING"
+        secret_name = "cv-storage-connection-string"
       }
 
       env {
