@@ -68,7 +68,6 @@ model Applications {
   jobRoleId           Int
   applicationStatusId Int
   cv                  String
-  cvScanStatus        String @default("pending")
 
   user              User              @relation(fields: [userId], references: [userId])
   jobRole           JobRole           @relation(fields: [jobRoleId], references: [jobRoleId])
