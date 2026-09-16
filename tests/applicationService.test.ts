@@ -75,7 +75,11 @@ describe("ApplicationService", () => {
       const result = await service.applyForJobRole(5, 1, mockCvFile);
 
       expect(result).toEqual({ applicationId: 10, status: "in progress" });
-      expect(blobStorageService.uploadCv).toHaveBeenCalledWith(5, 1, mockCvFile);
+      expect(blobStorageService.uploadCv).toHaveBeenCalledWith(
+        5,
+        1,
+        mockCvFile,
+      );
       expect(applicationDao.createApplication).toHaveBeenCalledWith({
         userId: 5,
         jobRoleId: 1,
@@ -88,9 +92,9 @@ describe("ApplicationService", () => {
     it("throws when the job role does not exist", async () => {
       vi.mocked(jobRoleDao.findJobRoleById).mockResolvedValue(null);
 
-      await expect(
-        service.applyForJobRole(5, 1, mockCvFile),
-      ).rejects.toThrow("Job role not found");
+      await expect(service.applyForJobRole(5, 1, mockCvFile)).rejects.toThrow(
+        "Job role not found",
+      );
       expect(applicationDao.createApplication).not.toHaveBeenCalled();
     });
 
@@ -111,9 +115,9 @@ describe("ApplicationService", () => {
         cvScanStatus: "pending",
       });
 
-      await expect(
-        service.applyForJobRole(5, 1, mockCvFile),
-      ).rejects.toThrow("You have already applied for this job role");
+      await expect(service.applyForJobRole(5, 1, mockCvFile)).rejects.toThrow(
+        "You have already applied for this job role",
+      );
       expect(applicationDao.createApplication).not.toHaveBeenCalled();
     });
   });
