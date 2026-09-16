@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { JobRoleController } from "../src/controllers/jobRoleController";
 import type { JobRoleDetailedResponse } from "../src/models/JobRoleDetailedResponse";
 import type { JobRole } from "../src/models/jobRole";
+import type { ApplicationService } from "../src/services/applicationService";
 import type { JobRoleService } from "../src/services/jobRoleService";
 
 const mockJobRoles: JobRole[] = [
@@ -80,9 +81,9 @@ describe("JobRoleController", () => {
       updateJobRole: vi.fn(),
       deleteJobRole: vi.fn(),
     } as unknown as JobRoleService;
-    const applicationService = {
+    const applicationService: Pick<ApplicationService, "applyForJobRole"> = {
       applyForJobRole: vi.fn(),
-    } as any;
+    };
     controller = new JobRoleController(jobRoleService, applicationService);
   });
 

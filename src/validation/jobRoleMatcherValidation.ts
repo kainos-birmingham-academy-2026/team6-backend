@@ -7,7 +7,9 @@ export const matcherAnswerSchema = z.object({
 });
 
 export const matcherSubmitSchema = z.object({
-  answers: z.array(matcherAnswerSchema).min(1, "At least one answer is required"),
+  answers: z
+    .array(matcherAnswerSchema)
+    .min(1, "At least one answer is required"),
 });
 
 export type MatcherSubmitRequest = z.infer<typeof matcherSubmitSchema>;

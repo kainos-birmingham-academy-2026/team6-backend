@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApplicationDao } from "../src/dao/applicationDao";
+import type {
+  ApplicationDao,
+  ApplicationWithJobRole,
+} from "../src/dao/applicationDao";
 import type { JobRoleDaoImpl } from "../src/dao/jobRoleDao";
 import { ApplicationService } from "../src/services/applicationService";
 
@@ -100,7 +103,7 @@ describe("ApplicationService", () => {
 
   describe("getMyApplications", () => {
     it("returns formatted applications for a user", async () => {
-      const mockApplications = [
+      const mockApplications: ApplicationWithJobRole[] = [
         {
           applicationId: 1,
           userId: 5,
@@ -120,7 +123,7 @@ describe("ApplicationService", () => {
       ];
 
       vi.mocked(applicationDao.findApplicationsByUserId).mockResolvedValue(
-        mockApplications as any,
+        mockApplications,
       );
 
       const result = await service.getMyApplications(5);

@@ -70,8 +70,6 @@ export class JobRoleMatcherService {
     const topScore = ranked[0].score;
     const clearMatches = ranked.filter((match) => match.score === topScore);
 
-    return clearMatches.length >= topN
-      ? clearMatches
-      : ranked.slice(0, topN);
+    return clearMatches.length >= topN ? clearMatches : ranked.slice(0, topN);
   }
 }
