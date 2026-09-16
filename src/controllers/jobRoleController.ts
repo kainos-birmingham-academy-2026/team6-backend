@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type { ParsedQs } from "qs";
+import type { JobRoleFilters } from "../dao/jobRoleDao";
 import type { ApplicationService } from "../services/applicationService";
 import type { JobRoleService } from "../services/jobRoleService";
 import {
@@ -64,8 +65,8 @@ export class JobRoleController {
     }
   }
 
-  private parseFilters(query: ParsedQs): any {
-    const filters: any = {};
+  private parseFilters(query: ParsedQs): JobRoleFilters {
+    const filters: JobRoleFilters = {};
 
     // Parse search parameter
     if (query.search && typeof query.search === "string") {
