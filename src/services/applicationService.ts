@@ -63,7 +63,6 @@ export class ApplicationService {
       jobRoleId,
       applicationStatusId: statusId,
       cv: cvBlobPath,
-      cvScanStatus: "pending",
     });
 
     return {

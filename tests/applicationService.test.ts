@@ -73,7 +73,6 @@ describe("ApplicationService", () => {
         jobRoleId: 1,
         applicationStatusId: 1,
         cv: "5/1/generated-cv.pdf",
-        cvScanStatus: "pending",
       });
 
       const result = await service.applyForJobRole(5, 1, mockCvFile);
@@ -89,7 +88,6 @@ describe("ApplicationService", () => {
         jobRoleId: 1,
         applicationStatusId: 1,
         cv: "5/1/generated-cv.pdf",
-        cvScanStatus: "pending",
       });
     });
 
@@ -116,7 +114,6 @@ describe("ApplicationService", () => {
         jobRoleId: 1,
         applicationStatusId: 1,
         cv: "5/1/generated-cv.pdf",
-        cvScanStatus: "pending",
       });
 
       await expect(service.applyForJobRole(5, 1, mockCvFile)).rejects.toThrow(
@@ -135,7 +132,6 @@ describe("ApplicationService", () => {
           jobRoleId: 1,
           applicationStatusId: 1,
           cv: "5/1/generated-cv.pdf",
-          cvScanStatus: "pending",
           applicationStatus: { applicationStatusName: "in progress" },
           jobRole: {
             jobRoleId: 1,
