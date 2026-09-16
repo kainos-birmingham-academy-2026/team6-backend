@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient, type ContainerClient } from "@azure/storage-blob";
 
 export type CvUploadInput = {
@@ -13,25 +14,33 @@ export class BlobStorageService {
   constructor(
     private readonly connectionString: string | undefined = process.env
       .CV_STORAGE_CONNECTION_STRING,
+    private readonly accountUrl: string | undefined = process.env
+      .CV_STORAGE_ACCOUNT_URL,
     private readonly containerName: string = process.env.CV_STORAGE_CONTAINER ??
       "cvs",
   ) {}
 
   private getContainerClient(): ContainerClient {
-    if (!this.connectionString) {
-      throw new Error("CV_STORAGE_CONNECTION_STRING is not configured");
-    }
-
     if (!this.containerClient) {
-      const serviceClient = BlobServiceClient.fromConnectionString(
-        this.connectionString,
-      );
+      const serviceClient = this.connectionString
+        ? BlobServiceClient.fromConnectionString(this.connectionString)
+        : this.createManagedIdentityClient();
       this.containerClient = serviceClient.getContainerClient(
         this.containerName,
       );
     }
 
     return this.containerClient;
+  }
+
+  private createManagedIdentityClient(): BlobServiceClient {
+    if (!this.accountUrl) {
+      throw new Error(
+        "CV_STORAGE_CONNECTION_STRING or CV_STORAGE_ACCOUNT_URL is required",
+      );
+    }
+
+    return new BlobServiceClient(this.accountUrl, new DefaultAzureCredential());
   }
 
   // Blob name is namespaced by user/job role so scan results and lookups stay unambiguous.
