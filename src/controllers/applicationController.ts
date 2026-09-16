@@ -12,6 +12,11 @@ export class ApplicationController {
     }
 
     try {
+      if (req.user.role === "admin") {
+        const applications = await this.applicationService.getAllApplications();
+        return res.status(200).json(applications);
+      }
+
       const applications = await this.applicationService.getMyApplications(
         req.user.userId,
       );
